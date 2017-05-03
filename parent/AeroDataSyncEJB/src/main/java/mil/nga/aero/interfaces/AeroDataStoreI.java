@@ -16,7 +16,7 @@ import mil.nga.aero.upg.model.UPGData;
  */
 public interface AeroDataStoreI {
 
-	/**
+    /**
      * Delete all records that match the input UUID.
      * 
      * @param uuid The UUID to be deleted.

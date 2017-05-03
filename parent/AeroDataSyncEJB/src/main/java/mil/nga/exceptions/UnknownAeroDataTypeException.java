@@ -6,18 +6,18 @@ package mil.nga.exceptions;
  * @author carpenlc
  */
 public class UnknownAeroDataTypeException extends Exception {
-	
-	/**
-	 * Eclipse-generated serialVersionUID
-	 */
-	private static final long serialVersionUID = 1685272697353150213L;
+    
+    /**
+     * Eclipse-generated serialVersionUID
+     */
+    private static final long serialVersionUID = 1685272697353150213L;
 
-	/** 
-	 * Default constructor requiring a message String.
-	 * @param msg Information identifying why the exception was raised.
-	 */
-	public UnknownAeroDataTypeException(String msg) {
-		super(msg);
-	}
-	
+    /** 
+     * Default constructor requiring a message String.
+     * @param msg Information identifying why the exception was raised.
+     */
+    public UnknownAeroDataTypeException(String msg) {
+        super(msg);
+    }
+    
 }

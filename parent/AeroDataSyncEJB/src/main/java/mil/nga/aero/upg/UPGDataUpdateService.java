@@ -24,32 +24,32 @@ import mil.nga.types.AeroDataType;
 @Stateless
 @LocalBean
 public class UPGDataUpdateService 
-		extends DataUpdateService 
-		implements AeroDataConstants, AeroDataUpdateServiceI, Serializable {
+        extends DataUpdateService 
+        implements AeroDataConstants, AeroDataUpdateServiceI, Serializable {
 
     /**
-	 * Eclipse-generated serialVersionUID
-	 */
-	private static final long serialVersionUID = -7313711867339844388L;
-	
-	/**
-	 * Set up the logging system for use throughout the class
-	 */		
-	private static final Logger LOGGER = LoggerFactory.getLogger(
-			UPGDataUpdateService.class);
-	
-	/**
-	 * The base directory where the JEPP data will be stored on the local
-	 * filesystem.
-	 */
-	private String baseDir;
-	
-	/**
-	 * The base URL for the JEPP data on the local system.
-	 */
-	private String baseURL;
-	
-	/**
+     * Eclipse-generated serialVersionUID
+     */
+    private static final long serialVersionUID = -7313711867339844388L;
+    
+    /**
+     * Set up the logging system for use throughout the class
+     */        
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            UPGDataUpdateService.class);
+    
+    /**
+     * The base directory where the JEPP data will be stored on the local
+     * filesystem.
+     */
+    private String baseDir;
+    
+    /**
+     * The base URL for the JEPP data on the local system.
+     */
+    private String baseURL;
+    
+    /**
      * Eclipse-generated default constructor. 
      */
     public UPGDataUpdateService() { }
@@ -59,17 +59,17 @@ public class UPGDataUpdateService
      */
     @PostConstruct
     public void initialize() {
-    	try {
-    		setBaseDirectory(super.getProperty(AeroDataConstants.UPG_DOWNLOAD_DIR));
-	    	setBaseURL(super.getProperty(AeroDataConstants.UPG_BASE_URL));
-    	}
-    	catch (PropertiesNotLoadedException pnl) {
-    		LOGGER.error("Unexpected PropertiesNotLoadedException raised "
-    				+ "while populating the required internal properties.  "
-    				+ "Exception message [ "
-    				+ pnl.getMessage()
-    				+ " ].");
-    	}
+        try {
+            setBaseDirectory(super.getProperty(AeroDataConstants.UPG_DOWNLOAD_DIR));
+            setBaseURL(super.getProperty(AeroDataConstants.UPG_BASE_URL));
+        }
+        catch (PropertiesNotLoadedException pnl) {
+            LOGGER.error("Unexpected PropertiesNotLoadedException raised "
+                    + "while populating the required internal properties.  "
+                    + "Exception message [ "
+                    + pnl.getMessage()
+                    + " ].");
+        }
     }
 
     /**
@@ -77,7 +77,7 @@ public class UPGDataUpdateService
      * @param value The base URL.
      */
     public String getBaseURL() {
-    	return baseURL;
+        return baseURL;
     }
     
     /**
@@ -85,7 +85,7 @@ public class UPGDataUpdateService
      * @param value The download location
      */
     public String getBaseDirectory() {
-    	return baseDir;
+        return baseDir;
     }
     
     /**
@@ -93,7 +93,7 @@ public class UPGDataUpdateService
      * @param value The base URL.
      */
     public AeroDataType getDataType() {
-    	return AeroDataType.UPG;
+        return AeroDataType.UPG;
     }
     
     /**
@@ -101,7 +101,7 @@ public class UPGDataUpdateService
      * @param value The base URL.
      */
     public void setBaseURL(String value) {
-    	baseURL = value;
+        baseURL = value;
     }
     
     /**
@@ -109,6 +109,6 @@ public class UPGDataUpdateService
      * @param value The download location
      */
     public void setBaseDirectory(String value) {
-    	baseDir = value;
+        baseDir = value;
     }
 }

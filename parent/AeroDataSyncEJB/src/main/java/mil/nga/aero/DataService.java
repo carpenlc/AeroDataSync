@@ -52,25 +52,25 @@ import mil.nga.exceptions.PropertiesNotLoadedException;
 @Stateless
 @LocalBean
 public class DataService 
-		extends PropertyLoader
-		implements AeroDataConstants, Serializable {
-	
+        extends PropertyLoader
+        implements AeroDataConstants, Serializable {
+    
     /**
-	 * Eclipse-generated serialVersionUID
-	 */
-	private static final long serialVersionUID = -7736797070521926821L;
+     * Eclipse-generated serialVersionUID
+     */
+    private static final long serialVersionUID = -7736797070521926821L;
 
-	/**
-	 * Set up the Log4j system for use throughout the class
-	 */		
-	private static final Logger LOGGER = LoggerFactory.getLogger(
-			DataService.class);
+    /**
+     * Set up the Log4j system for use throughout the class
+     */        
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            DataService.class);
 
-	/**
+    /**
      * Eclipse-generated constructor.
      */
     public DataService() {
-    	super(PROPERTIES_FILE); 
+        super(PROPERTIES_FILE); 
     }
 
     /**
@@ -82,17 +82,17 @@ public class DataService
      * system properties data.
      */
     protected String getTargetURL(String propName) throws UPGDataException {
-    	String url = null;
-    	try {
-    		url =  getProperty(propName);
-    		if ((url == null) || (url.isEmpty())) {
-    			throw new UPGDataException(ErrorCodes.PROPERTIES_NOT_DEFINED);
-    		}
-    	}
-    	catch (PropertiesNotLoadedException pnle) {
-    		throw new UPGDataException(ErrorCodes.PROPERTIES_NOT_LOADED);
-    	}
-    	return url;
+        String url = null;
+        try {
+            url =  getProperty(propName);
+            if ((url == null) || (url.isEmpty())) {
+                throw new UPGDataException(ErrorCodes.PROPERTIES_NOT_DEFINED);
+            }
+        }
+        catch (PropertiesNotLoadedException pnle) {
+            throw new UPGDataException(ErrorCodes.PROPERTIES_NOT_LOADED);
+        }
+        return url;
     }
    
     /**
@@ -104,18 +104,18 @@ public class DataService
      * @return encoded URL.
      */
     private String getEncodedURL(String urlStr) 
-    		throws MalformedURLException, URISyntaxException {
-    	
-    	URL url = new URL(urlStr);
-    	URI uri = new URI(
-    			url.getProtocol(), 
-    			url.getUserInfo(), 
-    			url.getHost(), 
-    			url.getPort(), 
-    			url.getPath(), 
-    			url.getQuery(), 
-    			url.getRef());
-    	return uri.toASCIIString();
+            throws MalformedURLException, URISyntaxException {
+        
+        URL url = new URL(urlStr);
+        URI uri = new URI(
+                url.getProtocol(), 
+                url.getUserInfo(), 
+                url.getHost(), 
+                url.getPort(), 
+                url.getPath(), 
+                url.getQuery(), 
+                url.getRef());
+        return uri.toASCIIString();
     }
     
     /**
@@ -132,153 +132,153 @@ public class DataService
      * process.
      */
     public boolean getProductFile(
-    		String source, 
-    		String destination) throws UPGDataException {
-    	
-    	CloseableHttpClient   client     = null;
-    	BufferedInputStream   input      = null;
-    	BufferedOutputStream  output     = null;
-    	HttpGet               request    = null;
-    	String                encodedURL = null;
-    	CloseableHttpResponse response   = null;
-    	long                  start      = System.currentTimeMillis();
-    	boolean               success    = false;
-    	
-    	if ((source != null) && (!source.isEmpty())) {
-    		if ((destination != null) && (!destination.isEmpty())) {
-    			
-    			try {
-    				
-	    			client = HttpClients.createDefault();
-	    			encodedURL = getEncodedURL(source);
-	    			request = new HttpGet(encodedURL);
-	    			request.addHeader("User-Agent", DEFAULT_USER_AGENT);
-	    			request.addHeader("Accept", "application/pdf");
-	    			request.addHeader("Content-Type", 
-	    					"application/x-www-form-urlencoded");
-	    			
-	    	    	if (LOGGER.isDebugEnabled()) {
-	    	    		LOGGER.debug("Executing HTTP GET request for URL [ "
-	    	    				+ encodedURL
-	    	    				+ " ].");
-	    	    	}
-	    	    	
-	    			response = client.execute(request);
-	    			int httpCode = response.getStatusLine().getStatusCode();
-	    	    	
-	    	    	if (LOGGER.isDebugEnabled()) {
-	    	    		LOGGER.debug("GET request for URL [ "
-	    	    				+ encodedURL
-	    	    				+ " ] returned HTTP status code [ "
-	    	    				+ destination
-	    	    				+ " ].");
-	    	    	}
-	    	    	
-	    	    	if (httpCode == HttpStatus.SC_OK) {
-	    	    		
-	    	    		if (LOGGER.isDebugEnabled()) {
-	    		    		LOGGER.debug("Downloading file [ "
-	    		    				+ encodedURL
-	    		    				+ " ].  Total bytes available [ "
-	    		    				+ response.getEntity().getContentLength()
-	    		    				+ " ].");
-	    	    		}
-	    	    		
-	    		    	input = new BufferedInputStream(
-	    		    			response.getEntity().getContent());
-	    		    	output = new BufferedOutputStream(
-	    		    			new FileOutputStream(
-	    		    					new File(destination)));
-	    		    	
-	    		    	int inByte;
-	    		    	while((inByte = input.read()) != -1) {
-	    		    		output.write(inByte);
-	    		    	}
-	    		    	
-	    		    	if (LOGGER.isDebugEnabled()) {
-	    					LOGGER.debug("File [ "
-	    							+ destination
-	    							+ " ] downloaded in [ "
-	    							+ (System.currentTimeMillis() - start) 
-	    							+ " ] ms.");
-	    				}
-	    		    	output.flush();
-	    		    	success = true;
-	    	    	}
-	    	    	else {
-	    	    		LOGGER.error("Execute of GET for URL [ "
-	    	    				+ encodedURL
-	    	    				+ " ] returned a status code of [ "
-	    	    				+ httpCode
-	    	    				+ " ].");
-	    	    		throw new UPGDataException(
-	    	    				ErrorCodes.INVALID_HTTP_STATUS_CODE);
-	    	    	}
-    	    	}
-    			catch (MalformedURLException mue) {
-    	    		LOGGER.error("Unable to execute the HTTP GET request for URL [ "
-    	    				+ source
-    	    				+ " ]. Unexpected MalformedURLException encountered [ "
-    	    				+ mue.getMessage()
-    	    				+ " ].");
-    	    		throw new UPGDataException(
-    	    				ErrorCodes.MALFORMED_URL);
-    			}
-    			catch (URISyntaxException use) {
-    	    		LOGGER.error("Unable to execute the HTTP GET request for URL [ "
-    	    				+ source
-    	    				+ " ]. Unexpected URISyntaxException encountered [ "
-    	    				+ use.getMessage()
-    	    				+ " ].");
-    	    		throw new UPGDataException(
-    	    				ErrorCodes.MALFORMED_URL);
-    			}
-    	    	catch (ClientProtocolException cpe) {
-    	    		LOGGER.error("Unable to execute the HTTP GET request for URL [ "
-    	    				+ source
-    	    				+ " ]. Unexpected ClientProtocolException encountered [ "
-    	    				+ cpe.getMessage()
-    	    				+ " ].");
-    	    		throw new UPGDataException(
-    	    				ErrorCodes.CLIENT_PROTOCOL_EXCEPTION);
-    	    	}
-    	    	catch (IOException ioe) {
-    	    		LOGGER.error("Unable to execute the HTTP GET request for URL [ "
-    	    				+ source
-    	    				+ " ]. Unexpected IOException encountered [ "
-    	    				+ ioe.getMessage()
-    	    				+ " ].");
-    	    		throw new UPGDataException(
-    	    				ErrorCodes.IO_EXCEPTION);
-    	    	}
-    	    	finally {
-    	    		if (input != null) {
-    	    			try { input.close(); } catch (Exception e) {}
-    	    		}
-    	    		if (output != null) {
-    	    			try { output.close(); } catch (Exception e) {}
-    	    		}
-    	    		if (response != null) {
-    	    			try { response.close(); } catch (Exception e) {}
-    	    		}
-    	    		if (client != null) {
-    	    			try { client.close(); } catch (Exception e) {}
-    	    		}
-    	    	}
-    		}
-    		else {
-    			LOGGER.debug("The destination location is null or empty.  "
-    					+ "No attempt will be made to download source file [ "
-    					+ source
-    					+ " ].");
-    		}
-    	}
-    	else {
-    		LOGGER.error("The input URL identifying the source file to "
-    				+ "download is null or empty.  No attempt will be "
-    				+ "made to initiate a download.");
-    	}
-    	return success;
+            String source, 
+            String destination) throws UPGDataException {
+        
+        CloseableHttpClient   client     = null;
+        BufferedInputStream   input      = null;
+        BufferedOutputStream  output     = null;
+        HttpGet               request    = null;
+        String                encodedURL = null;
+        CloseableHttpResponse response   = null;
+        long                  start      = System.currentTimeMillis();
+        boolean               success    = false;
+        
+        if ((source != null) && (!source.isEmpty())) {
+            if ((destination != null) && (!destination.isEmpty())) {
+                
+                try {
+                    
+                    client = HttpClients.createDefault();
+                    encodedURL = getEncodedURL(source);
+                    request = new HttpGet(encodedURL);
+                    request.addHeader("User-Agent", DEFAULT_USER_AGENT);
+                    request.addHeader("Accept", "application/pdf");
+                    request.addHeader("Content-Type", 
+                            "application/x-www-form-urlencoded");
+                    
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Executing HTTP GET request for URL [ "
+                                + encodedURL
+                                + " ].");
+                    }
+                    
+                    response = client.execute(request);
+                    int httpCode = response.getStatusLine().getStatusCode();
+                    
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("GET request for URL [ "
+                                + encodedURL
+                                + " ] returned HTTP status code [ "
+                                + destination
+                                + " ].");
+                    }
+                    
+                    if (httpCode == HttpStatus.SC_OK) {
+                        
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Downloading file [ "
+                                    + encodedURL
+                                    + " ].  Total bytes available [ "
+                                    + response.getEntity().getContentLength()
+                                    + " ].");
+                        }
+                        
+                        input = new BufferedInputStream(
+                                response.getEntity().getContent());
+                        output = new BufferedOutputStream(
+                                new FileOutputStream(
+                                        new File(destination)));
+                        
+                        int inByte;
+                        while((inByte = input.read()) != -1) {
+                            output.write(inByte);
+                        }
+                        
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("File [ "
+                                    + destination
+                                    + " ] downloaded in [ "
+                                    + (System.currentTimeMillis() - start) 
+                                    + " ] ms.");
+                        }
+                        output.flush();
+                        success = true;
+                    }
+                    else {
+                        LOGGER.error("Execute of GET for URL [ "
+                                + encodedURL
+                                + " ] returned a status code of [ "
+                                + httpCode
+                                + " ].");
+                        throw new UPGDataException(
+                                ErrorCodes.INVALID_HTTP_STATUS_CODE);
+                    }
+                }
+                catch (MalformedURLException mue) {
+                    LOGGER.error("Unable to execute the HTTP GET request for URL [ "
+                            + source
+                            + " ]. Unexpected MalformedURLException encountered [ "
+                            + mue.getMessage()
+                            + " ].");
+                    throw new UPGDataException(
+                            ErrorCodes.MALFORMED_URL);
+                }
+                catch (URISyntaxException use) {
+                    LOGGER.error("Unable to execute the HTTP GET request for URL [ "
+                            + source
+                            + " ]. Unexpected URISyntaxException encountered [ "
+                            + use.getMessage()
+                            + " ].");
+                    throw new UPGDataException(
+                            ErrorCodes.MALFORMED_URL);
+                }
+                catch (ClientProtocolException cpe) {
+                    LOGGER.error("Unable to execute the HTTP GET request for URL [ "
+                            + source
+                            + " ]. Unexpected ClientProtocolException encountered [ "
+                            + cpe.getMessage()
+                            + " ].");
+                    throw new UPGDataException(
+                            ErrorCodes.CLIENT_PROTOCOL_EXCEPTION);
+                }
+                catch (IOException ioe) {
+                    LOGGER.error("Unable to execute the HTTP GET request for URL [ "
+                            + source
+                            + " ]. Unexpected IOException encountered [ "
+                            + ioe.getMessage()
+                            + " ].");
+                    throw new UPGDataException(
+                            ErrorCodes.IO_EXCEPTION);
+                }
+                finally {
+                    if (input != null) {
+                        try { input.close(); } catch (Exception e) {}
+                    }
+                    if (output != null) {
+                        try { output.close(); } catch (Exception e) {}
+                    }
+                    if (response != null) {
+                        try { response.close(); } catch (Exception e) {}
+                    }
+                    if (client != null) {
+                        try { client.close(); } catch (Exception e) {}
+                    }
+                }
+            }
+            else {
+                LOGGER.debug("The destination location is null or empty.  "
+                        + "No attempt will be made to download source file [ "
+                        + source
+                        + " ].");
+            }
+        }
+        else {
+            LOGGER.error("The input URL identifying the source file to "
+                    + "download is null or empty.  No attempt will be "
+                    + "made to initiate a download.");
+        }
+        return success;
     }
     
     /**
@@ -292,101 +292,101 @@ public class DataService
      * downloading and processing the UPG source data.
      */
     public String getRawData(String targetURL) throws UPGDataException {
-    	
-    	CloseableHttpClient   client   = HttpClients.createDefault();
-    	BufferedReader        reader   = null;
-    	HttpGet               request  = new HttpGet(targetURL);
-    	CloseableHttpResponse response = null;
-    	StringBuilder         sb       = new StringBuilder();
-    	long                  start    = System.currentTimeMillis();
-    	
-    	try {
-    		
-	    	request.addHeader("User-Agent", DEFAULT_USER_AGENT);
-	    	request.addHeader("Accept", "application/json");
-	    	
-	    	if (LOGGER.isDebugEnabled()) {
-	    		LOGGER.debug("Executing HTTP GET request for URL [ "
-	    				+ targetURL
-	    				+ " ].");
-	    	}
-	    	
-	    	response = client.execute(request);
-	    	int httpCode = response.getStatusLine().getStatusCode();
-	    	
-	    	if (LOGGER.isDebugEnabled()) {
-	    		LOGGER.debug("GET request for URL [ "
-	    				+ targetURL
-	    				+ " ] returned HTTP status code [ "
-	    				+ httpCode
-	    				+ " ].");
-	    	}
-	    	if (httpCode == HttpStatus.SC_OK) {
-	    		
-	    		if (LOGGER.isDebugEnabled()) {
-		    		LOGGER.debug("HTTP GET bytes available [ "
-		    				+ response.getEntity().getContentLength()
-		    				+ " ].");
-	    		}
-	    		
-		    	reader = new BufferedReader(
-		    				new InputStreamReader(
-		    					response.getEntity().getContent()));
-		    	
-		    	String input = null;
-		    	while((input = reader.readLine()) != null) {
-		    		sb.append(input);
-		    	}
-		    	
-		    	if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Execution of HTTP GET request for URL [ "
-							+ targetURL
-							+ " ] completed in [ "
-							+ (System.currentTimeMillis() - start) 
-							+ " ] ms.");
-				}
-		    	
-	    	}
-	    	else {
-	    		LOGGER.error("Execute of GET for URL [ "
-	    				+ targetURL
-	    				+ " ] returned a status code of [ "
-	    				+ httpCode
-	    				+ " ].");
-	    		throw new UPGDataException(
-	    				ErrorCodes.INVALID_HTTP_STATUS_CODE);
-	    	}
-    	}
-    	catch (ClientProtocolException cpe) {
-    		LOGGER.error("Unable to execute the HTTP GET request for URL [ "
-    				+ targetURL
-    				+ " ]. Unexpected ClientProtocolException encountered [ "
-    				+ cpe.getMessage()
-    				+ " ].");
-    		throw new UPGDataException(
-    				ErrorCodes.CLIENT_PROTOCOL_EXCEPTION);
-    	}
-    	catch (IOException ioe) {
-    		LOGGER.error("Unable to execute the HTTP GET request for URL [ "
-    				+ targetURL
-    				+ " ]. Unexpected IOException encountered [ "
-    				+ ioe.getMessage()
-    				+ " ].");
-    		throw new UPGDataException(
-    				ErrorCodes.IO_EXCEPTION);
-    	}
-    	finally {
-    		if (reader != null) {
-    			try { reader.close(); } catch (Exception e) {}
-    		}
-    		if (response != null) {
-    			try { response.close(); } catch (Exception e) {}
-    		}
-    		if (client != null) {
-    			try { client.close(); } catch (Exception e) {}
-    		}
-    	}
-    	return sb.toString();
+        
+        CloseableHttpClient   client   = HttpClients.createDefault();
+        BufferedReader        reader   = null;
+        HttpGet               request  = new HttpGet(targetURL);
+        CloseableHttpResponse response = null;
+        StringBuilder         sb       = new StringBuilder();
+        long                  start    = System.currentTimeMillis();
+        
+        try {
+            
+            request.addHeader("User-Agent", DEFAULT_USER_AGENT);
+            request.addHeader("Accept", "application/json");
+            
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Executing HTTP GET request for URL [ "
+                        + targetURL
+                        + " ].");
+            }
+            
+            response = client.execute(request);
+            int httpCode = response.getStatusLine().getStatusCode();
+            
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("GET request for URL [ "
+                        + targetURL
+                        + " ] returned HTTP status code [ "
+                        + httpCode
+                        + " ].");
+            }
+            if (httpCode == HttpStatus.SC_OK) {
+                
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("HTTP GET bytes available [ "
+                            + response.getEntity().getContentLength()
+                            + " ].");
+                }
+                
+                reader = new BufferedReader(
+                            new InputStreamReader(
+                                response.getEntity().getContent()));
+                
+                String input = null;
+                while((input = reader.readLine()) != null) {
+                    sb.append(input);
+                }
+                
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Execution of HTTP GET request for URL [ "
+                            + targetURL
+                            + " ] completed in [ "
+                            + (System.currentTimeMillis() - start) 
+                            + " ] ms.");
+                }
+                
+            }
+            else {
+                LOGGER.error("Execute of GET for URL [ "
+                        + targetURL
+                        + " ] returned a status code of [ "
+                        + httpCode
+                        + " ].");
+                throw new UPGDataException(
+                        ErrorCodes.INVALID_HTTP_STATUS_CODE);
+            }
+        }
+        catch (ClientProtocolException cpe) {
+            LOGGER.error("Unable to execute the HTTP GET request for URL [ "
+                    + targetURL
+                    + " ]. Unexpected ClientProtocolException encountered [ "
+                    + cpe.getMessage()
+                    + " ].");
+            throw new UPGDataException(
+                    ErrorCodes.CLIENT_PROTOCOL_EXCEPTION);
+        }
+        catch (IOException ioe) {
+            LOGGER.error("Unable to execute the HTTP GET request for URL [ "
+                    + targetURL
+                    + " ]. Unexpected IOException encountered [ "
+                    + ioe.getMessage()
+                    + " ].");
+            throw new UPGDataException(
+                    ErrorCodes.IO_EXCEPTION);
+        }
+        finally {
+            if (reader != null) {
+                try { reader.close(); } catch (Exception e) {}
+            }
+            if (response != null) {
+                try { response.close(); } catch (Exception e) {}
+            }
+            if (client != null) {
+                try { client.close(); } catch (Exception e) {}
+            }
+        }
+        return sb.toString();
     }
     
     /**
@@ -399,79 +399,79 @@ public class DataService
      * unmarshalling operation.
      */
     public RawUPGData unmarshal (String data) throws UPGDataException {
-    	
-    	RawUPGData obj   = null;
-    	long       start = System.currentTimeMillis();
-    	
-    	try {
-	    	if ((data == null) || (data.isEmpty())) {
-	    		
-	    		LOGGER.error("No data was retrieved from target URL.");
-	    		throw new UPGDataException(
-	    				ErrorCodes.NO_DATA_RETRIEVED);
-	    		
-	    	}
-	    	else {
-	    		
-	    		ObjectMapper mapper = new ObjectMapper();
-	    		mapper.configure(
-	    				MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, 
-	    				true);
-	    		obj = mapper.readValue(data, RawUPGData.class);
-	    		
-	    	}
-    	}
-    	catch (JsonMappingException jme) {
-    		
-    		LOGGER.error("Unable to unmarshal the input JSON String.  "
-    				+ "Unexpected JsonMappingException encountered [ "
-    				+ jme.getMessage()
-    				+ " ].");
-    		if (LOGGER.isDebugEnabled()) { 
-    			LOGGER.debug("Problematic JSON data is as follows: "
-    					+ data);
-    		}
-    		throw new UPGDataException(
-    				ErrorCodes.JSON_PARSER_EXCEPTION);
-    		
-    	}
-    	catch (JsonParseException jpe) {
-    		
-    		LOGGER.error("Unable to unmarshal the input JSON String.  "
-    				+ "Unexpected JsonParseException encountered [ "
-    				+ jpe.getMessage()
-    				+ " ].");
-    		if (LOGGER.isDebugEnabled()) { 
-    			LOGGER.debug("Problematic JSON data is as follows: "
-    					+ data);
-    		}
-    		throw new UPGDataException(
-    				ErrorCodes.JSON_PARSER_EXCEPTION);
-    		
-    	}
-    	catch (IOException ioe) {
-    		
-    		LOGGER.error("Unable to unmarshal the input JSON String.  "
-    				+ "Unexpected IOException encountered [ "
-    				+ ioe.getMessage()
-    				+ " ].");
-    		if (LOGGER.isDebugEnabled()) { 
-    			LOGGER.debug("Problematic JSON data is as follows: "
-    					+ data);
-    		}
-    		throw new UPGDataException(
-    				ErrorCodes.JSON_IO_EXCEPTION);
-    		
-    	}
-    	
-    	if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Unmarshal of [ "
-					+ obj.getData().size()
-					+ " ] UPG data records completed in [ "
-					+ (System.currentTimeMillis() - start) 
-					+ " ] ms.");
-		}
-    	
-    	return obj;
+        
+        RawUPGData obj   = null;
+        long       start = System.currentTimeMillis();
+        
+        try {
+            if ((data == null) || (data.isEmpty())) {
+                
+                LOGGER.error("No data was retrieved from target URL.");
+                throw new UPGDataException(
+                        ErrorCodes.NO_DATA_RETRIEVED);
+                
+            }
+            else {
+                
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.configure(
+                        MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, 
+                        true);
+                obj = mapper.readValue(data, RawUPGData.class);
+                
+            }
+        }
+        catch (JsonMappingException jme) {
+            
+            LOGGER.error("Unable to unmarshal the input JSON String.  "
+                    + "Unexpected JsonMappingException encountered [ "
+                    + jme.getMessage()
+                    + " ].");
+            if (LOGGER.isDebugEnabled()) { 
+                LOGGER.debug("Problematic JSON data is as follows: "
+                        + data);
+            }
+            throw new UPGDataException(
+                    ErrorCodes.JSON_PARSER_EXCEPTION);
+            
+        }
+        catch (JsonParseException jpe) {
+            
+            LOGGER.error("Unable to unmarshal the input JSON String.  "
+                    + "Unexpected JsonParseException encountered [ "
+                    + jpe.getMessage()
+                    + " ].");
+            if (LOGGER.isDebugEnabled()) { 
+                LOGGER.debug("Problematic JSON data is as follows: "
+                        + data);
+            }
+            throw new UPGDataException(
+                    ErrorCodes.JSON_PARSER_EXCEPTION);
+            
+        }
+        catch (IOException ioe) {
+            
+            LOGGER.error("Unable to unmarshal the input JSON String.  "
+                    + "Unexpected IOException encountered [ "
+                    + ioe.getMessage()
+                    + " ].");
+            if (LOGGER.isDebugEnabled()) { 
+                LOGGER.debug("Problematic JSON data is as follows: "
+                        + data);
+            }
+            throw new UPGDataException(
+                    ErrorCodes.JSON_IO_EXCEPTION);
+            
+        }
+        
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Unmarshal of [ "
+                    + obj.getData().size()
+                    + " ] UPG data records completed in [ "
+                    + (System.currentTimeMillis() - start) 
+                    + " ] ms.");
+        }
+        
+        return obj;
     }
 }

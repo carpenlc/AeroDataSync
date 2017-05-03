@@ -26,32 +26,32 @@ import mil.nga.types.AeroDataType;
 @Stateless
 @LocalBean
 public class JEPPDataUpdateService 
-		extends DataUpdateService
-		implements AeroDataConstants, AeroDataUpdateServiceI, Serializable {
-	
+        extends DataUpdateService
+        implements AeroDataConstants, AeroDataUpdateServiceI, Serializable {
+    
     /**
-	 * Eclipse-generated serialVersionUID
-	 */
-	private static final long serialVersionUID = 5389306020849301154L;
+     * Eclipse-generated serialVersionUID
+     */
+    private static final long serialVersionUID = 5389306020849301154L;
 
-	/**
-	 * Set up the logging system for use throughout the class
-	 */		
-	private static final Logger LOGGER = LoggerFactory.getLogger(
-			JEPPDataUpdateService.class);
-	
-	/**
-	 * The base directory where the JEPP data will be stored on the local
-	 * filesystem.
-	 */
-	private String baseDir;
-	
-	/**
-	 * The base URL for the JEPP data on the local system.
-	 */
-	private String baseURL;
-	
-	/**
+    /**
+     * Set up the logging system for use throughout the class
+     */        
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            JEPPDataUpdateService.class);
+    
+    /**
+     * The base directory where the JEPP data will be stored on the local
+     * filesystem.
+     */
+    private String baseDir;
+    
+    /**
+     * The base URL for the JEPP data on the local system.
+     */
+    private String baseURL;
+    
+    /**
      * Eclipse-generated default constructor. 
      */
     public JEPPDataUpdateService() { }
@@ -61,17 +61,17 @@ public class JEPPDataUpdateService
      */
     @PostConstruct
     public void initialize() {
-    	try {
-    		setBaseDirectory(super.getProperty(AeroDataConstants.JEPP_DOWNLOAD_DIR));
-	    	setBaseURL(super.getProperty(AeroDataConstants.JEPP_BASE_URL));
-    	}
-    	catch (PropertiesNotLoadedException pnl) {
-    		LOGGER.error("Unexpected PropertiesNotLoadedException raised "
-    				+ "while populating the required internal properties.  "
-    				+ "Exception message [ "
-    				+ pnl.getMessage()
-    				+ " ].");
-    	}
+        try {
+            setBaseDirectory(super.getProperty(AeroDataConstants.JEPP_DOWNLOAD_DIR));
+            setBaseURL(super.getProperty(AeroDataConstants.JEPP_BASE_URL));
+        }
+        catch (PropertiesNotLoadedException pnl) {
+            LOGGER.error("Unexpected PropertiesNotLoadedException raised "
+                    + "while populating the required internal properties.  "
+                    + "Exception message [ "
+                    + pnl.getMessage()
+                    + " ].");
+        }
     }
 
     /**
@@ -79,7 +79,7 @@ public class JEPPDataUpdateService
      * @param value The base URL.
      */
     public String getBaseURL() {
-    	return baseURL;
+        return baseURL;
     }
     
     /**
@@ -87,7 +87,7 @@ public class JEPPDataUpdateService
      * @param value The download location
      */
     public String getBaseDirectory() {
-    	return baseDir;
+        return baseDir;
     }
     
     /**
@@ -95,7 +95,7 @@ public class JEPPDataUpdateService
      * @param value The base URL.
      */
     public AeroDataType getDataType() {
-    	return AeroDataType.JEPP;
+        return AeroDataType.JEPP;
     }
     
     /**
@@ -103,7 +103,7 @@ public class JEPPDataUpdateService
      * @param value The base URL.
      */
     public void setBaseURL(String value) {
-    	baseURL = value;
+        baseURL = value;
     }
     
     /**
@@ -111,7 +111,7 @@ public class JEPPDataUpdateService
      * @param value The download location
      */
     public void setBaseDirectory(String value) {
-    	baseDir = value;
+        baseDir = value;
     }
     
 }

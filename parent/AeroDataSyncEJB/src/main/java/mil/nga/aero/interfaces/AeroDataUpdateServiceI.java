@@ -13,40 +13,40 @@ import mil.nga.aero.upg.model.UPGData;
  */
 public interface AeroDataUpdateServiceI {
 
-	/**
-	 * Add the identified product to the local holdings.
-	 * 
-	 * @param product Object representing the product to add to local 
-	 * holdings.
-	 */
-	public void add(IntermediateUPGData product) throws UPGDataException;
-	
-	/**
-	 * Remove the identified product from the local holdings.
-	 * 
-	 * @param product Object representing the product to remove from local 
-	 * holdings.
-	 */
-	public void remove(UPGData product) throws UPGDataException;
-	
-	/**
-	 * Update the identified product in the local holdings.
-	 * 
-	 * @param product Object representing the product to update in local 
-	 * holdings.
-	 */
-	public void update(IntermediateUPGData product) throws UPGDataException;
-	
-	/**
-	 * Method to determine whether or not the local holdings need to be
-	 * updated with the source holdings.
-	 * 
-	 * @param sourceHolding The source UPG data.
-	 * @param localHolding The UPG data in the local holdings.
-	 * @return True if the source data needs to be updated, false otherwise.
-	 */
+    /**
+     * Add the identified product to the local holdings.
+     * 
+     * @param product Object representing the product to add to local 
+     * holdings.
+     */
+    public void add(IntermediateUPGData product) throws UPGDataException;
+    
+    /**
+     * Remove the identified product from the local holdings.
+     * 
+     * @param product Object representing the product to remove from local 
+     * holdings.
+     */
+    public void remove(UPGData product) throws UPGDataException;
+    
+    /**
+     * Update the identified product in the local holdings.
+     * 
+     * @param product Object representing the product to update in local 
+     * holdings.
+     */
+    public void update(IntermediateUPGData product) throws UPGDataException;
+    
+    /**
+     * Method to determine whether or not the local holdings need to be
+     * updated with the source holdings.
+     * 
+     * @param sourceHolding The source UPG data.
+     * @param localHolding The UPG data in the local holdings.
+     * @return True if the source data needs to be updated, false otherwise.
+     */
     public boolean isUpdateRequired(
-    		IntermediateUPGData intermediate, 
-    		UPGData             localHoldings);
+            IntermediateUPGData intermediate, 
+            UPGData             localHoldings);
     
 }
