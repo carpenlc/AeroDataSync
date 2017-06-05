@@ -256,6 +256,7 @@ public abstract class DataUpdateService
                                 + " ] failed.  Setting the download "
                                 + "failed flag so it can be re-tried "
                                 + "later.");
+                        success = false;
                     }
                 }
                 else {
@@ -265,6 +266,7 @@ public abstract class DataUpdateService
                             + " ] failed.  Setting the download "
                             + "failed flag so it can be re-tried "
                             + "later.");
+                    success = false;
                 }
             }
             else {
@@ -366,6 +368,7 @@ public abstract class DataUpdateService
         boolean update = false;
         
         try {
+            
             // If the download failed flag is set to "failed" (i.e. 0 
             // retry the download.
             if (localHoldings
@@ -380,8 +383,8 @@ public abstract class DataUpdateService
                             + localHoldings.getUUID()
                             + " ] Product download will be re-tried.");
                 }
-                
                 update = true;
+                
             }
             else if (!(fileExists(
                     getFinalDestinationFilename(
@@ -401,6 +404,7 @@ public abstract class DataUpdateService
                 
                 update = true;
             }
+            
             // Temporary check to make sure that all of the source link data
             // is set in the local repository.  This was done because the 
             // legacy Coldfusion code was not setting the source links 
@@ -419,6 +423,7 @@ public abstract class DataUpdateService
                 
                 update = true;
             }
+            
             // If the last modified date of the source holdings is newer
             // than the local holdings the data should be updated.
             else if (intermediate.getDateLastModified()
