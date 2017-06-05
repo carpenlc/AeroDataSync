@@ -544,6 +544,11 @@ public class JDBCUPGDataService implements AeroDataStoreI {
         if (datasource != null) {
             if (data != null) {
                     
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Updating database record [ "
+                            + data.toString()
+                            + " ].");
+                }
                 try { 
                     
                     conn = datasource.getConnection();
@@ -556,11 +561,10 @@ public class JDBCUPGDataService implements AeroDataStoreI {
                     stmt.setBigDecimal(5, data.getDownloadSuccess());
                     stmt.setString(    6, data.getPsuedoName());
                     stmt.setString(    7, data.getType());
-                    stmt.setString(    8, data.getUUID());
-                    stmt.setString(    9, data.getSourceLink());
+                    stmt.setString(    8, data.getSourceLink());
+                    stmt.setString(    9, data.getUUID());
                     
                     stmt.executeUpdate();
-                    
                 }
                 catch (SQLException se) {
                     LOGGER.error("An unexpected SQLException was raised while "

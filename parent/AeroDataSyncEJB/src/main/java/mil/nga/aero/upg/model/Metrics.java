@@ -1,7 +1,7 @@
 package mil.nga.aero.upg.model;
 
 import java.io.Serializable;
-import java.sql.Date;
+import java.util.Date;
 import java.text.SimpleDateFormat;
 
 /**
@@ -295,7 +295,9 @@ public class Metrics implements Serializable {
          * @param value The HOST_NAME attribute.
          */
         public MetricsBuilder hostName (String value) {
-            hostName = value;
+            if (value != null) {
+                hostName = value.trim();
+            }
             return this;
         }
         
@@ -304,7 +306,9 @@ public class Metrics implements Serializable {
          * @param value The SERVER_NAME attribute.
          */
         public MetricsBuilder jvmName (String value) {
-            jvmName = value;
+            if (value != null) {
+                jvmName = value.trim();
+            }
             return this;
         }
         
@@ -328,76 +332,75 @@ public class Metrics implements Serializable {
         
         /**
          * Validate that all fields are populated.
+         * 
          * @param object The Metrics object to validate.
          * @throws IllegalStateException Thrown if any of the required fields 
-         * are not populated.
+         * are not populated with acceptable values.
          */
         private void validateMetricsObject(Metrics object) 
                 throws IllegalStateException {
-            if (!(elapsedTime > 0)) {
+            if (!(object.getElapsedTime() > 0)) {
                 throw new IllegalStateException("Invalid value for "
                         + "ELAPSED_TIME [ "
-                        + elapsedTime
+                        + object.getElapsedTime()
                         + " ].  ELAPSED_TIME must be greater than 0.");
             }
-            if (executionTime == null) {
+            if (object.getExecutionTime() == null) {
                 throw new IllegalStateException("Invalid value for "
                         + "EXECUTION_TIME.  EXECUTION_TIME must not be null.");
             }
-            if (added < 0) {
+            if (object.getNumProductsAdded() < 0) {
                 throw new IllegalStateException("Invalid value for "
                         + "NUM_PRODUCTS_ADDED [ "
-                        + added
+                        + object.getNumProductsAdded()
                         + " ].  NUM_PRODUCTS_ADDED must be greater than or "
                         + "equal to 0.");
             }
-            if (removed < 0) {
+            if (object.getNumProductsRemoved() < 0) {
                 throw new IllegalStateException("Invalid value for "
                         + "NUM_PRODUCTS_REMOVED [ "
-                        + removed
+                        + object.getNumProductsRemoved()
                         + " ].  NUM_PRODUCTS_REMOVED must be greater than or "
                         + "equal to 0.");
             }
-            if (updated < 0) {
+            if (object.getNumProductsUpdated() < 0) {
                 throw new IllegalStateException("Invalid value for "
                         + "NUM_PRODUCTS_UPDATED [ "
                         + updated
                         + " ].  NUM_PRODUCTS_UPDATED must be greater than or "
                         + "equal to 0.");
             }
-            if (failedDownloads < 0) {
+            if (object.getNumFailedDownloads() < 0) {
                 throw new IllegalStateException("Invalid value for "
                         + "FAILED_DOWNLOADS [ "
-                        + failedDownloads
+                        + object.getNumFailedDownloads()
                         + " ].  FAILED_DOWNLOADS must be greater than or "
                         + "equal to 0.");
             }
-            if (localHoldings < 0) {
+            if (object.getLocalHoldings() < 0) {
                 throw new IllegalStateException("Invalid value for "
                         + "LOCAL_HOLDINGS [ "
-                        + sourceHoldings
+                        + object.getLocalHoldings()
                         + " ].  LOCAL_HOLDINGS must be greater than or "
                         + "equal to 0.");
             }
-            if (sourceHoldings < 0) {
+            if (object.getSourceHoldings() < 0) {
                 throw new IllegalStateException("Invalid value for "
                         + "SOURCE_HOLDINGS [ "
-                        + sourceHoldings
+                        + object.getSourceHoldings()
                         + " ].  SOURCE_HOLDINGS must be greater than or "
                         + "equal to 0.");
             }
-            if ((hostName == null) || (hostName.isEmpty())) {
+            if ((object.getHostName() == null) || (object.getHostName().isEmpty())) {
                 throw new IllegalStateException("Attempted to build "
                         + "Metrics object but the value for "
                         + "HOST_NAME was null.");
             }
-            hostName = hostName.trim();
-            if ((jvmName == null) || (jvmName.isEmpty())) {
+            if ((object.getJvmName() == null) || (object.getJvmName().isEmpty())) {
                 throw new IllegalStateException("Attempted to build "
                         + "Metrics object but the value for "
                         + "SERVER_NAME was null.");
             }
-            jvmName = jvmName.trim();
         }
     }
 }

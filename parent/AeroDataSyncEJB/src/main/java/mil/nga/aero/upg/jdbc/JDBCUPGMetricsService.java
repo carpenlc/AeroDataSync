@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 import javax.annotation.Resource;
 import javax.ejb.LocalBean;
@@ -30,7 +31,7 @@ public class JDBCUPGMetricsService
 
     /*
      CREATE TABLE UPG_SYNCHRONIZATION_METRICS (
-         EXECUTION_TIME       DATE NOT NULL,
+         EXECUTION_TIME       TIMESTAMP NOT NULL,
          SOURCE_HOLDINGS      INTEGER NOT NULL,
          NUM_PRODUCTS_ADDED   INTEGER NOT NULL,
          NUM_PRODUCTS_UPDATED INTEGER NOT NULL,
@@ -48,6 +49,11 @@ public class JDBCUPGMetricsService
      */
     private static final long serialVersionUID = 3156556311752008884L;
 
+    /**
+     * The name of the target table in which UPG metrics will be stored.
+     */
+    private static final String METRICS_TABLE = "UPG_SYNCH_METRICS_NEW";
+    
     /**
      * Set up the logging system for use throughout the class
      */        
@@ -77,8 +83,9 @@ public class JDBCUPGMetricsService
         Connection        conn   = null;
         PreparedStatement stmt   = null;
         long              start  = System.currentTimeMillis();
-        String            sql    = "insert into UPG_SYNCHRONIZATION_METRICS ("
-                + "EXECUTION_TIME, SOURCE_HOLDINGS, NUM_PRODUCTS_ADDED, "
+        String            sql    = "insert into "
+                + METRICS_TABLE
+                + " (EXECUTION_TIME, SOURCE_HOLDINGS, NUM_PRODUCTS_ADDED, "
                 + "NUM_PRODUCTS_UPDATED, NUM_PRODUCTS_REMOVED, "
                 + "NUM_FAILED_DOWNLOADS, LOCAL_HOLDINGS, ELAPSED_TIME, "
                 + "HOST_NAME, SERVER_NAME ) values "
@@ -92,19 +99,19 @@ public class JDBCUPGMetricsService
                     conn = datasource.getConnection();
                     stmt = conn.prepareStatement(sql);
                     
-                    stmt.setDate(   1,  metrics.getExecutionTime());
-                    stmt.setInt(    2,  metrics.getSourceHoldings());
-                    stmt.setInt(    3,  metrics.getNumProductsAdded());
-                    stmt.setInt(    4,  metrics.getNumProductsUpdated());
-                    stmt.setInt(    5,  metrics.getNumProductsRemoved());
-                    stmt.setInt(    6,  metrics.getNumFailedDownloads());
-                    stmt.setInt(    7,  metrics.getLocalHoldings());
-                    stmt.setLong(   8,  metrics.getElapsedTime());
-                    stmt.setString( 9,  metrics.getHostName());
-                    stmt.setString( 10, metrics.getJvmName());
+                    stmt.setTimestamp(1,  new Timestamp(metrics.getExecutionTime().getTime()));
+                    stmt.setInt(      2,  metrics.getSourceHoldings());
+                    stmt.setInt(      3,  metrics.getNumProductsAdded());
+                    stmt.setInt(      4,  metrics.getNumProductsUpdated());
+                    stmt.setInt(      5,  metrics.getNumProductsRemoved());
+                    stmt.setInt(      6,  metrics.getNumFailedDownloads());
+                    stmt.setInt(      7,  metrics.getLocalHoldings());
+                    stmt.setLong(     8,  metrics.getElapsedTime());
+                    stmt.setString(   9,  metrics.getHostName());
+                    stmt.setString(  10, metrics.getJvmName());
   
                     stmt.executeUpdate();
-                    
+                 
                 }
                 catch (SQLException se) {
                     LOGGER.error("An unexpected SQLException was raised while "

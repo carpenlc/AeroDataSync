@@ -340,7 +340,7 @@ public class UPGData implements Serializable {
             
             if ((filename == null) || (filename.isEmpty())) {
                 throw new IllegalStateException("Attempted to build "
-                        + "UPGData object but the value for HASH "
+                        + "UPGData object but the value for FILENAME "
                         + "was null.");
             }
             filename = filename.trim();

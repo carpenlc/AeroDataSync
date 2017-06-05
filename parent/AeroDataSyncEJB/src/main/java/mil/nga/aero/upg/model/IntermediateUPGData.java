@@ -6,6 +6,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Simple POJO holding the data associated with a single array element 
  * retrieved from the UPG data source.  This will hold the data associated 
@@ -15,8 +18,10 @@ import java.util.List;
  * data source.  The raw data is obtained via JAX-B marshalling of JSON data.
  * @see mil.nga.aero.upg.model.RawUPGData
  * 
+ * Added a dump of the instanted object if the validation algorithm fails.  
+ * This is to troubleshoot issues with incoming data from Leidos.
+ * 
  * @author L. Craig Carpenter
- *
  */
 public class IntermediateUPGData implements Serializable {
 
@@ -25,6 +30,12 @@ public class IntermediateUPGData implements Serializable {
      */
     private static final long serialVersionUID = -1056315747425191280L;
 
+    /**
+     * Set up the LogBack system for use throughout the class
+     */        
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            IntermediateUPGData.class);
+    
     /** 
      * Format associated with dates incoming from the target UPG data source.
      */
@@ -132,6 +143,7 @@ public class IntermediateUPGData implements Serializable {
         StringBuilder sb      = new StringBuilder();
         String        newLine = System.getProperty("line.separator");
         
+        sb.append(newLine);
         sb.append("UUID => [ ");
         sb.append(getUUID());
         sb.append(" ], ICAO => [ ");
@@ -150,6 +162,7 @@ public class IntermediateUPGData implements Serializable {
         
         return sb.toString();
     }
+    
     /**
      * Class implementing the Builder creation pattern for new 
      * IntermediateUPGData objects.
@@ -250,7 +263,9 @@ public class IntermediateUPGData implements Serializable {
          * @param value The HASH attribute.
          */
         public IntermediateUPGDataBuilder hash(String value) {
-            hash = value;
+            if (value != null) {
+                hash = value.trim();
+            }
             return this;
         }
         
@@ -259,7 +274,9 @@ public class IntermediateUPGData implements Serializable {
          * @param value The ICAO attribute.
          */
         public IntermediateUPGDataBuilder icao(String value) {
-            icao = value;
+            if (value != null) {
+                icao = value.trim();
+            }
             return this;
         }
         
@@ -268,7 +285,9 @@ public class IntermediateUPGData implements Serializable {
          * @param value The PSUEDONAME attribute.
          */
         public IntermediateUPGDataBuilder psuedoName(String value) {
-            psuedoName = value;
+            if (value != null) {
+                psuedoName = value.trim();
+            }
             return this;
         }
         
@@ -277,7 +296,9 @@ public class IntermediateUPGData implements Serializable {
          * @param value The TYPE attribute.
          */
         public IntermediateUPGDataBuilder type(String value) {
-            type = value;
+            if (value != null) {
+                type = value.trim();
+            }
             return this;
         }
         
@@ -286,7 +307,9 @@ public class IntermediateUPGData implements Serializable {
          * @param value The link attribute.
          */
         public IntermediateUPGDataBuilder link(String value) {
-            link = value;
+            if (value != null) {
+                link = value.trim();
+            }
             return this;
 
         }
@@ -296,7 +319,9 @@ public class IntermediateUPGData implements Serializable {
          * @param value The UUID attribute.
          */
         public IntermediateUPGDataBuilder uuid(String value) {
-            uuid = value;
+            if (value != null) {
+                uuid = value.trim();
+            }
             return this;
         }
         
@@ -310,47 +335,60 @@ public class IntermediateUPGData implements Serializable {
         private void validateIntermediateUPGDataObject(
                 IntermediateUPGData object) throws IllegalStateException {
             
-            if ((hash == null) || (hash.isEmpty())) {
+            if ((object.getHash() == null) || (object.getHash().isEmpty())) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.error("Invalid intermediate object received => "
+                            + object.toString());
+                }
                 throw new IllegalStateException("Attempted to build "
                         + "IntermediateUPGData object but the value for HASH "
                         + "was null.");
             }
-            hash = hash.trim();
-            
-            if ((icao == null) || (icao.isEmpty())) {
+            if ((object.getICAO() == null) || (object.getICAO().isEmpty())) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.error("Invalid intermediate object received => "
+                            + object.toString());
+                }
                 throw new IllegalStateException("Attempted to build "
                         + "IntermediateUPGData object but the value for ICAO "
                         + "was null.");
             }
-            icao = icao.trim();
-            
-            if ((link == null) || (link.isEmpty())) {
+            if ((object.getLink() == null) || (object.getLink().isEmpty())) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.error("Invalid intermediate object received => "
+                            + object.toString());
+                }
                 throw new IllegalStateException("Attempted to build "
                         + "IntermediateUPGData object but the value for URL "
                         + "was null.");
             }
-            link = link.trim();
-            
             if ((psuedoName == null) || (psuedoName.isEmpty())) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.error("Invalid intermediate object received => "
+                            + object.toString());
+                }
                 throw new IllegalStateException("Attempted to build "
                         + "IntermediateUPGData object but the value for "
                         + "PSUEDONAME was null.");
             }
-            psuedoName = psuedoName.trim();
-            
             if ((type == null) || (type.isEmpty())) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.error("Invalid intermediate object received => "
+                            + object.toString());
+                }
                 throw new IllegalStateException("Attempted to build "
                         + "IntermediateUPGData object but the value for TYPE "
                         + "was null.");
             }
-            type = type.trim();
-            
             if ((uuid == null) || (uuid.isEmpty())) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.error("Invalid intermediate object received => "
+                            + object.toString());
+                }
                 throw new IllegalStateException("Attempted to build "
                         + "IntermediateUPGData object but the value for UUID "
                         + "was null.");
             }
-            uuid = uuid.trim();
         }
     }
 }

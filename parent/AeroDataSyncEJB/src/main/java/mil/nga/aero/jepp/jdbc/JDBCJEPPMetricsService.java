@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 import javax.annotation.Resource;
 import javax.ejb.LocalBean;
@@ -30,13 +31,13 @@ public class JDBCJEPPMetricsService
 
     /*
      CREATE TABLE JEPP_SYNCHRONIZATION_METRICS (
-         EXECUTION_TIME       DATE NOT NULL,
-         SOURCE_HOLDINGS      INTEGER NOT NULL,
-         NUM_PRODUCTS_ADDED   INTEGER NOT NULL,
-         NUM_PRODUCTS_UPDATED INTEGER NOT NULL,
-         NUM_PRODUCTS_REMOVED INTEGER NOT NULL,
-        NUM_FAILED_DOWNLOADS INTEGER NOT NULL,
-        LOCAL_HOLDINGS       INTEGER NOT NULL,
+         EXECUTION_TIME       TIMESTAMP NOT NULL,
+         SOURCE_HOLDINGS      NUMBER(38) NOT NULL,
+         NUM_PRODUCTS_ADDED   NUMBER(38) NOT NULL,
+         NUM_PRODUCTS_UPDATED NUMBER(38) NOT NULL,
+         NUM_PRODUCTS_REMOVED NUMBER(38) NOT NULL,
+        NUM_FAILED_DOWNLOADS NUMBER(38) NOT NULL,
+        LOCAL_HOLDINGS       NUMBER(38) NOT NULL,
         ELAPSED_TIME         NUMBER(38) NOT NULL,
         HOST_NAME            VARCHAR2(100),
         SERVER_NAME          VARCHAR2(100)
@@ -48,6 +49,11 @@ public class JDBCJEPPMetricsService
      */
     private static final long serialVersionUID = -6519926677868335796L;
 
+    /**
+     * The name of the target table in which JEPP metrics will be stored.
+     */
+    private static final String METRICS_TABLE = "JEPP_SYNCH_METRICS";
+    
     /**
      * Set up the logging system for use throughout the class
      */        
@@ -77,8 +83,9 @@ public class JDBCJEPPMetricsService
         Connection        conn   = null;
         PreparedStatement stmt   = null;
         long              start  = System.currentTimeMillis();
-        String            sql    = "insert into JEPP_SYNCHRONIZATION_METRICS ("
-                + "EXECUTION_TIME, SOURCE_HOLDINGS, NUM_PRODUCTS_ADDED, "
+        String            sql    = "insert into "
+                + METRICS_TABLE
+                + " (EXECUTION_TIME, SOURCE_HOLDINGS, NUM_PRODUCTS_ADDED, "
                 + "NUM_PRODUCTS_UPDATED, NUM_PRODUCTS_REMOVED, "
                 + "NUM_FAILED_DOWNLOADS, LOCAL_HOLDINGS, ELAPSED_TIME, "
                 + "HOST_NAME, SERVER_NAME ) values "
@@ -92,7 +99,7 @@ public class JDBCJEPPMetricsService
                     conn = datasource.getConnection();
                     stmt = conn.prepareStatement(sql);
                     
-                    stmt.setDate(   1,  metrics.getExecutionTime());
+                    stmt.setTimestamp(   1,  new Timestamp(metrics.getExecutionTime().getTime()));
                     stmt.setInt(    2,  metrics.getSourceHoldings());
                     stmt.setInt(    3,  metrics.getNumProductsAdded());
                     stmt.setInt(    4,  metrics.getNumProductsUpdated());
