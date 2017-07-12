@@ -10,4 +10,5 @@
       <context-root>AeroDataSyncWeb</context-root>
     </web>
   </module>
+  <library-directory>lib</library-directory>
 </application>
