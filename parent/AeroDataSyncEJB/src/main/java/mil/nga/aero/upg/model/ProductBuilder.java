@@ -50,6 +50,7 @@ public class ProductBuilder
      * @param type The AeroDataType
      */
     public ProductBuilder(AeroDataType type) throws UPGDataException { 
+        super(PROPERTIES_FILE);
         try {
             if (type != null) {
                 dataType = type;

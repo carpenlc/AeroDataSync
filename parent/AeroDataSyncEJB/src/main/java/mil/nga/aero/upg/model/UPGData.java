@@ -37,7 +37,7 @@ public class UPGData implements Serializable {
     private final Date       dateLastModified;
     private       String     link;
     private final String     filename;
-    private       BigDecimal success; // 0 or 1 (1 represents success).
+    private       long       success; // 0 or 1 (1 represents success).
     private final String     psuedoName;
     private final String     type;
     private final String     sourceLink; // Source holdings link.
@@ -113,7 +113,7 @@ public class UPGData implements Serializable {
      * Getter method for the success attribute.
      * @return The success attribute.
      */
-    public BigDecimal getDownloadSuccess() {
+    public long getDownloadSuccess() {
         return success;
     }
     
@@ -155,14 +155,7 @@ public class UPGData implements Serializable {
      * either a zero or one.
      * @param value The download success attribute.
      */
-    public void setDownloadSuccess(BigDecimal value) throws IllegalStateException {
-        if (value == null) {
-            throw new IllegalStateException("Attempted to build UPGData "
-                    + "object but the value for the success field was out of "
-                    + "range [ "
-                    + value
-                    + " ].");
-        }
+    public void setDownloadSuccess(long value) {
         success = value;
     }
     
@@ -217,16 +210,16 @@ public class UPGData implements Serializable {
      */
     public static class UPGDataBuilder {
         
-        private String     uuid;
-        private String     icao;
-        private Date       dateLastModified;
-        private String     link;
-        private String     filename;
-        private String     hash;   // Included for JEPP data but not UPG.
-        private String     sourceLink; // URL of the source data.
-        private BigDecimal success; // 0 or 1 (1 represents success).
-        private String     psuedoName;
-        private String     type;
+        private String uuid;
+        private String icao;
+        private Date   dateLastModified;
+        private String link;
+        private String filename;
+        private String hash;   // Included for JEPP data but not UPG.
+        private String sourceLink; // URL of the source data.
+        private long   success; // 0 or 1 (1 represents success).
+        private String psuedoName;
+        private String type;
         
         /**
          * Method used to actually construct the UPGData object.
@@ -251,7 +244,7 @@ public class UPGData implements Serializable {
          * Setter method for the SUCCESS_DL attribute.
          * @param value The SUCCESS_DL attribute.
          */
-        public UPGDataBuilder success(BigDecimal value) {
+        public UPGDataBuilder success(long value) {
             success = value;
             return this;
         }

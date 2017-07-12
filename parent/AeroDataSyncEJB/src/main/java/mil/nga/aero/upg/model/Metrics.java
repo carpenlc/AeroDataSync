@@ -31,13 +31,13 @@ public class Metrics implements Serializable {
                 new SimpleDateFormat(DATE_FORMAT_STRING);
     
     private final Date   executionTime;
-    private final int    sourceHoldings;
-    private final int    added;
-    private final int    updated;
-    private final int    removed;
-    private final int    failedDownloads;
+    private final long   sourceHoldings;
+    private final long   added;
+    private final long   updated;
+    private final long   removed;
+    private final long   failedDownloads;
     private final long   elapsedTime;
-    private final int    localHoldings;
+    private final long   localHoldings;
     private final String hostName;
     private final String jvmName;
     
@@ -88,7 +88,7 @@ public class Metrics implements Serializable {
      * Getter method for the number of products that failed to download.
      * @return The number of products that failed to download.
      */
-    public int getNumFailedDownloads() {
+    public long getNumFailedDownloads() {
         return failedDownloads;
     }
     
@@ -96,7 +96,7 @@ public class Metrics implements Serializable {
      * Return the number of products held locally.
      * @return The number of products held locally.
      */
-    public int getLocalHoldings() {
+    public long getLocalHoldings() {
         return localHoldings;
     }
     
@@ -104,7 +104,7 @@ public class Metrics implements Serializable {
      * Getter method for the number of products added.
      * @return The number of products added.
      */
-    public int getNumProductsAdded() {
+    public long getNumProductsAdded() {
         return added;
     }
     
@@ -112,7 +112,7 @@ public class Metrics implements Serializable {
      * Getter method for the number of products updated.
      * @return The number of products updated.
      */
-    public int getNumProductsUpdated() {
+    public long getNumProductsUpdated() {
         return updated;
     }
     
@@ -120,7 +120,7 @@ public class Metrics implements Serializable {
      * Getter method for the number of products removed.
      * @return The number of products removed.
      */
-    public int getNumProductsRemoved() {
+    public long getNumProductsRemoved() {
         return removed;
     }
     
@@ -145,7 +145,7 @@ public class Metrics implements Serializable {
      * Return the number of products at the source.
      * @return The number of products held by the source.
      */
-    public int getSourceHoldings() {
+    public long getSourceHoldings() {
         return sourceHoldings;
     }
     
@@ -201,13 +201,13 @@ public class Metrics implements Serializable {
     public static class MetricsBuilder {
         
         private Date   executionTime   = null;
-        private int    sourceHoldings  = 0;
-        private int    added           = 0; 
-        private int    updated         = 0;
-        private int    removed         = 0;
-        private int    failedDownloads = 0;
+        private long   sourceHoldings  = 0;
+        private long   added           = 0; 
+        private long   updated         = 0;
+        private long   removed         = 0;
+        private long   failedDownloads = 0;
         private long   elapsedTime     = 0;
-        private int    localHoldings   = 0;
+        private long   localHoldings   = 0;
         private String hostName        = "";
         private String jvmName         = "";
         
@@ -249,7 +249,7 @@ public class Metrics implements Serializable {
          * Setter method for the NUM_PRODUCTS_ADDED attribute.
          * @param value The NUM_PRODUCTS_ADDED attribute.
          */
-        public MetricsBuilder added (int value) {
+        public MetricsBuilder added (long value) {
             added = value;
             return this;
         }
@@ -258,7 +258,7 @@ public class Metrics implements Serializable {
          * Setter method for the FAILED_DOWNLOADS attribute.
          * @param value The FAILED_DOWNLOADS attribute.
          */
-        public MetricsBuilder failedDownloads (int value) {
+        public MetricsBuilder failedDownloads (long value) {
             failedDownloads = value;
             return this;
         }
@@ -267,7 +267,7 @@ public class Metrics implements Serializable {
          * Setter method for the NUM_PRODUCTS_REMOVED attribute.
          * @param value The NUM_PRODUCTS_REMOVED attribute.
          */
-        public MetricsBuilder removed (int value) {
+        public MetricsBuilder removed (long value) {
             removed = value;
             return this;
         }
@@ -276,7 +276,7 @@ public class Metrics implements Serializable {
          * Setter method for the NUM_PRODUCTS_UPDATED attribute.
          * @param value The NUM_PRODUCTS_UPDATED attribute.
          */
-        public MetricsBuilder updated (int value) {
+        public MetricsBuilder updated (long value) {
             updated = value;
             return this;
         }
@@ -316,7 +316,7 @@ public class Metrics implements Serializable {
          * Setter method for the LOCAL_HOLDINGS attribute.
          * @param value The LOCAL_HOLDINGS attribute.
          */
-        public MetricsBuilder localHoldings (int value) {
+        public MetricsBuilder localHoldings (long value) {
             localHoldings = value;
             return this;
         }
@@ -325,7 +325,7 @@ public class Metrics implements Serializable {
          * Setter method for the SOURCE_HOLDINGS attribute.
          * @param value The SOURCE_HOLDINGS attribute.
          */
-        public MetricsBuilder sourceHoldings (int value) {
+        public MetricsBuilder sourceHoldings (long value) {
             sourceHoldings = value;
             return this;
         }
