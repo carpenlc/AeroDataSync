@@ -46,11 +46,18 @@
 		    <groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
 	    </dependency>
-<dependency>
-    <groupId>org.apache.httpcomponents</groupId>
-    <artifactId>httpcore</artifactId>
-    <version>4.4.6</version>
-</dependency>
+            <dependency>
+	        <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+            </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-core</artifactId>
@@ -109,6 +116,10 @@
 							<groupId>commons-codec</groupId>
 							<artifactId>commons-codec</artifactId>
 						</jarModule>
+                        <jarModule>
+                            <groupId>commons-logging</groupId>
+                            <artifactId>commons-logging</artifactId>
+                        </jarModule>
 						<jarModule>
 			                <groupId>ch.qos.logback</groupId>
 			                <artifactId>logback-core</artifactId>
@@ -121,6 +132,14 @@
 			                <groupId>ch.qos.logback</groupId>
 			                <artifactId>logback-access</artifactId>
 		                </jarModule>
+                        <jarModule>
+                            <groupId>org.apache.httpcomponents</groupId>
+                            <artifactId>httpcore</artifactId>
+                        </jarModule>
+                        <jarModule>
+                            <groupId>org.apache.httpcomponents</groupId>
+                            <artifactId>httpclient</artifactId>
+                        </jarModule>
 					</modules>
 				</configuration>
 			</plugin>
@@ -133,7 +152,7 @@
 					    <hostname>214.37.42.185</hostname>
 					    <port>9990</port>
 					    <server-groups>
-					        <server-group>dev-server-group</server-group>
+					        <server-group>dev-singleton-server-group</server-group>
 					    </server-groups>
 				    <filename>${project.artifactId}.ear</filename>
 				</configuration>
