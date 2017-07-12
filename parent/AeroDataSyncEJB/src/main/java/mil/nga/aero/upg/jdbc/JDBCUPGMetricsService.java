@@ -3,8 +3,11 @@ package mil.nga.aero.upg.jdbc;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.ejb.LocalBean;
@@ -52,7 +55,7 @@ public class JDBCUPGMetricsService
     /**
      * The name of the target table in which UPG metrics will be stored.
      */
-    private static final String METRICS_TABLE = "UPG_SYNCH_METRICS_NEW";
+    private static final String METRICS_TABLE = "UPG_SYNC_METRICS";
     
     /**
      * Set up the logging system for use throughout the class
@@ -73,9 +76,9 @@ public class JDBCUPGMetricsService
 
     /**
      * Persist (insert) the information associated with the input 
-     * <code>UPG_SYNCHRONIZATION_METRICS</code> object.
+     * <code>UPG_SYNC_METRICS</code> object.
      * 
-     * @param metrics <code>UPG_SYNCHRONIZATION_METRICS</code> object containing 
+     * @param metrics <code>UPG_SYNC_METRICS</code> object containing 
      * updated metrics information.
      */
     public void insert(Metrics metrics) {
@@ -100,12 +103,12 @@ public class JDBCUPGMetricsService
                     stmt = conn.prepareStatement(sql);
                     
                     stmt.setTimestamp(1,  new Timestamp(metrics.getExecutionTime().getTime()));
-                    stmt.setInt(      2,  metrics.getSourceHoldings());
-                    stmt.setInt(      3,  metrics.getNumProductsAdded());
-                    stmt.setInt(      4,  metrics.getNumProductsUpdated());
-                    stmt.setInt(      5,  metrics.getNumProductsRemoved());
-                    stmt.setInt(      6,  metrics.getNumFailedDownloads());
-                    stmt.setInt(      7,  metrics.getLocalHoldings());
+                    stmt.setLong(     2,  metrics.getSourceHoldings());
+                    stmt.setLong(     3,  metrics.getNumProductsAdded());
+                    stmt.setLong(     4,  metrics.getNumProductsUpdated());
+                    stmt.setLong(     5,  metrics.getNumProductsRemoved());
+                    stmt.setLong(     6,  metrics.getNumFailedDownloads());
+                    stmt.setLong(     7,  metrics.getLocalHoldings());
                     stmt.setLong(     8,  metrics.getElapsedTime());
                     stmt.setString(   9,  metrics.getHostName());
                     stmt.setString(  10, metrics.getJvmName());
@@ -137,11 +140,190 @@ public class JDBCUPGMetricsService
         }
         
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Insert of UPG_SYNCHRONIZATION_METRICS record "
-                    + " completed in [ "
+            LOGGER.debug("Insert of "
+                    + METRICS_TABLE
+                    + "record completed in [ "
                     + (System.currentTimeMillis() - start) 
                     + " ] ms.");
         }
     }
+ 
+    /**
+     * Select a list containing all of the elements from the target table.
+     * @return A list of all metrics records from the target table.
+     */
+    public List<Metrics> select() {
+        
+        Connection        conn       = null;
+        List<Metrics>     metrics    = new ArrayList<Metrics>();
+        PreparedStatement stmt       = null;
+        ResultSet         rs         = null;
+        long              startTime  = System.currentTimeMillis();
+        String            sql        = "select "
+                + "EXECUTION_TIME, SOURCE_HOLDINGS, NUM_PRODUCTS_ADDED, "
+                + "NUM_PRODUCTS_UPDATED, NUM_PRODUCTS_REMOVED, "
+                + "NUM_FAILED_DOWNLOADS, LOCAL_HOLDINGS, ELAPSED_TIME, "
+                + "HOST_NAME, SERVER_NAME from "
+                + METRICS_TABLE;
+        
+        if (datasource != null) {
+            try {
+                
+                conn = datasource.getConnection();
+                stmt = conn.prepareStatement(sql);
+                rs   = stmt.executeQuery();
+                
+                while (rs.next()) {
+                    Metrics entry = new Metrics.MetricsBuilder()
+                            .executionTime(rs.getTimestamp("EXECUTION_TIME"))
+                            .sourceHoldings(rs.getInt("SOURCE_HOLDINGS"))
+                            .added(rs.getLong("NUM_PRODUCTS_ADDED"))
+                            .updated(rs.getLong("NUM_PRODUCTS_UPDATED"))
+                            .removed(rs.getLong("NUM_PRODUCTS_REMOVED"))
+                            .failedDownloads(rs.getLong("NUM_FAILED_DOWNLOADS"))
+                            .localHoldings(rs.getLong("LOCAL_HOLDINGS"))
+                            .elapsedTime(rs.getLong("ELAPSED_TIME"))
+                            .hostName(rs.getString("HOST_NAME"))
+                            .jvmName(rs.getString("SERVER_NAME"))
+                            .build();
+                     metrics.add(entry);
+                }
+            }
+            catch (SQLException se) {
+                LOGGER.error("An unexpected SQLException was raised while "
+                        + "attempting to retrieve a list of Metrics from the "
+                        + "target data source.  Error message [ "
+                        + se.getMessage() 
+                        + " ].");
+            }
+            finally {
+                try { 
+                    if (rs != null) { rs.close(); } 
+                } catch (Exception e) {}
+                try { 
+                    if (stmt != null) { stmt.close(); } 
+                } catch (Exception e) {}
+                try { 
+                    if (conn != null) { conn.close(); } 
+                } catch (Exception e) {}
+            }
+        }
+        else {
+            LOGGER.warn("DataSource object not injected by the container.  "
+                    + "An empty List will be returned to the caller.");
+        }
+        
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("[ "
+                    + metrics.size() 
+                    + " ] metrics records selected in [ "
+                    + (System.currentTimeMillis() - startTime) 
+                    + " ] ms.");
+        }
+        return metrics;
+        
+    }
     
+    /**
+    /**
+     * This method will return a list of all 
+     * <code>mil.nga.aero.upg.model.Metrics</code> objects currently 
+     * persisted in the back-end data store that fall between the input 
+     * start and end time.
+     * 
+     * @param startTime The "from" parameter 
+     * @param endTime The "to" parameter
+     * @return All of the metrics records executed between the input start 
+     * and end times.  
+     */
+    public List<Metrics> select(long start, long end) {
+        
+        Connection        conn       = null;
+        List<Metrics>     metrics    = new ArrayList<Metrics>();
+        PreparedStatement stmt       = null;
+        ResultSet         rs         = null;
+        long              startTime  = System.currentTimeMillis();
+        String            sql        = "select "
+                + "EXECUTION_TIME, SOURCE_HOLDINGS, NUM_PRODUCTS_ADDED, "
+                + "NUM_PRODUCTS_UPDATED, NUM_PRODUCTS_REMOVED, "
+                + "NUM_FAILED_DOWNLOADS, LOCAL_HOLDINGS, ELAPSED_TIME, "
+                + "HOST_NAME, SERVER_NAME from "
+                + METRICS_TABLE
+                + " where EXECUTION_TIME > ? and EXECUTION_TIME < ? "
+                + "order by EXECUTION_TIME desc";
+        
+        // Ensure the startTime is earlier than the endTime before submitting
+        // the query to the database.
+        if (start > end) {
+                LOGGER.warn("The caller supplied a start time that falls "
+                        + "after the end time.  Swapping start and end "
+                        + "times.");
+                long temp = start;
+                start = end;
+                end = temp;
+        }
+        else if (start == end) {
+            LOGGER.warn("The caller supplied the same time for both start "
+                    + "and end time.  This method will likely yield a null "
+                    + "job list.");
+        }
+        
+        if (datasource != null) {
+            try {
+                
+                conn = datasource.getConnection();
+                stmt = conn.prepareStatement(sql);
+                stmt.setLong(1, start);
+                stmt.setLong(2, end);
+                rs   = stmt.executeQuery();
+                
+                while (rs.next()) {
+                    Metrics entry = new Metrics.MetricsBuilder()
+                            .executionTime(rs.getTimestamp("EXECUTION_TIME"))
+                            .sourceHoldings(rs.getInt("SOURCE_HOLDINGS"))
+                            .added(rs.getLong("NUM_PRODUCTS_ADDED"))
+                            .updated(rs.getLong("NUM_PRODUCTS_UPDATED"))
+                            .removed(rs.getLong("NUM_PRODUCTS_REMOVED"))
+                            .failedDownloads(rs.getLong("NUM_FAILED_DOWNLOADS"))
+                            .localHoldings(rs.getLong("LOCAL_HOLDINGS"))
+                            .elapsedTime(rs.getLong("ELAPSED_TIME"))
+                            .hostName(rs.getString("HOST_NAME"))
+                            .jvmName(rs.getString("SERVER_NAME"))
+                            .build();
+                     metrics.add(entry);
+                }
+            }
+            catch (SQLException se) {
+                LOGGER.error("An unexpected SQLException was raised while "
+                        + "attempting to retrieve a list of Metrics from the "
+                        + "target data source.  Error message [ "
+                        + se.getMessage() 
+                        + " ].");
+            }
+            finally {
+                try { 
+                    if (rs != null) { rs.close(); } 
+                } catch (Exception e) {}
+                try { 
+                    if (stmt != null) { stmt.close(); } 
+                } catch (Exception e) {}
+                try { 
+                    if (conn != null) { conn.close(); } 
+                } catch (Exception e) {}
+            }
+        }
+        else {
+            LOGGER.warn("DataSource object not injected by the container.  "
+                    + "An empty List will be returned to the caller.");
+        }
+        
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("[ "
+                    + metrics.size() 
+                    + " ] metrics records selected in [ "
+                    + (System.currentTimeMillis() - startTime) 
+                    + " ] ms.");
+        }
+        return metrics;
+    }
 }

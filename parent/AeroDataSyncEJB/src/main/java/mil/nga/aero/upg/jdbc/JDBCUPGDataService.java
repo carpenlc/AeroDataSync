@@ -198,7 +198,7 @@ public class JDBCUPGDataService implements AeroDataStoreI {
                                 .dateLastModified(rs.getDate("DATE_LAST_MODIFIED"))
                                 .link(rs.getString("LINK"))
                                 .filename(rs.getString("FILENAME"))
-                                .success(rs.getBigDecimal("SUCCESS_DL"))
+                                .success(rs.getLong("SUCCESS_DL"))
                                 .psuedoName(rs.getString("PSUEDONAME"))
                                 .type(rs.getString("TYPE"))
                                 .sourceLink(rs.getString("LEIDOS_URL"))
@@ -413,7 +413,7 @@ public class JDBCUPGDataService implements AeroDataStoreI {
                             .dateLastModified(rs.getDate("DATE_LAST_MODIFIED"))
                             .link(rs.getString("LINK"))
                             .filename(rs.getString("FILENAME"))
-                            .success(rs.getBigDecimal("SUCCESS_DL"))
+                            .success(rs.getLong("SUCCESS_DL"))
                             .psuedoName(rs.getString("PSUEDONAME"))
                             .type(rs.getString("TYPE"))
                             .sourceLink(rs.getString("LEIDOS_URL"))
@@ -481,15 +481,15 @@ public class JDBCUPGDataService implements AeroDataStoreI {
                     conn = datasource.getConnection();
                     stmt = conn.prepareStatement(sql);
                     
-                    stmt.setString(    1, data.getUUID());
-                    stmt.setString(    2, data.getICAO());
-                    stmt.setDate(      3, data.getDateLastModified());
-                    stmt.setString(    4, data.getLink());
-                    stmt.setString(    5, data.getFilename());
-                    stmt.setBigDecimal(6, data.getDownloadSuccess());
-                    stmt.setString(    7, data.getPsuedoName());
-                    stmt.setString(    8, data.getType());
-                    stmt.setString(    9, data.getSourceLink());
+                    stmt.setString(1, data.getUUID());
+                    stmt.setString(2, data.getICAO());
+                    stmt.setDate(  3, data.getDateLastModified());
+                    stmt.setString(4, data.getLink());
+                    stmt.setString(5, data.getFilename());
+                    stmt.setLong(  6, data.getDownloadSuccess());
+                    stmt.setString(7, data.getPsuedoName());
+                    stmt.setString(8, data.getType());
+                    stmt.setString(9, data.getSourceLink());
                     stmt.executeUpdate();
                     
                 }
@@ -554,15 +554,15 @@ public class JDBCUPGDataService implements AeroDataStoreI {
                     conn = datasource.getConnection();
                     stmt = conn.prepareStatement(sql);
                     
-                    stmt.setString(    1, data.getICAO());
-                    stmt.setDate(      2, data.getDateLastModified());
-                    stmt.setString(    3, data.getLink());
-                    stmt.setString(    4, data.getFilename());
-                    stmt.setBigDecimal(5, data.getDownloadSuccess());
-                    stmt.setString(    6, data.getPsuedoName());
-                    stmt.setString(    7, data.getType());
-                    stmt.setString(    8, data.getSourceLink());
-                    stmt.setString(    9, data.getUUID());
+                    stmt.setString(1, data.getICAO());
+                    stmt.setDate(  2, data.getDateLastModified());
+                    stmt.setString(3, data.getLink());
+                    stmt.setString(4, data.getFilename());
+                    stmt.setLong  (5, data.getDownloadSuccess());
+                    stmt.setString(6, data.getPsuedoName());
+                    stmt.setString(7, data.getType());
+                    stmt.setString(8, data.getSourceLink());
+                    stmt.setString(9, data.getUUID());
                     
                     stmt.executeUpdate();
                 }
