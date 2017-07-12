@@ -11,12 +11,12 @@ public interface AeroDataConstants {
      * The file containing the system properties required for keeping the UPG
      * data up to date.  This is the only thing hard-coded in the application.
      */
-    public static String PROPERTIES_FILE = "/mnt/eng2/gateway/upgdownload/config.properties";
+    public static String PROPERTIES_FILE = "config.properties";
     
     /**
      * The target URL from which to retrieve the JSON-formatted UPG data.
      */
-    public static String UPG_TARGET_URL = "UPG.source.url";
+    public static String UPG_TARGET_URL = "UPG.source.URL";
     
     /**
      * File system location in which to store the downloaded UPG data.
@@ -31,7 +31,7 @@ public interface AeroDataConstants {
     /**
      * The target URL from which to retrieve the JSON-formatted UPG data.
      */
-    public static String JEPP_TARGET_URL = "JEPP.source.url";
+    public static String JEPP_TARGET_URL = "JEPP.source.URL";
     
     /**
      * File system location in which to store the downloaded UPG data.
