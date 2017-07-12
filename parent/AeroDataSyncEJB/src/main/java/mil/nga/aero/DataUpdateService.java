@@ -3,7 +3,6 @@ package mil.nga.aero;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 import javax.ejb.EJB;
 
@@ -257,6 +256,27 @@ public abstract class DataUpdateService
                                 + "failed flag so it can be re-tried "
                                 + "later.");
                         success = false;
+                       
+                        // Add a searchable error message for the product in 
+                        // question.
+                        LOGGER.error(
+                                "Error processing product UUID => [ "
+                                + uuid
+                                + " ], ICAO => [ "
+                                + icao
+                                + " ], TYPE => [ "
+                                + type
+                                + " ], FILENAME => [ "
+                                + filename
+                                + " ], SOURCE HASH => [ "
+                                + hash
+                                + " ], expected hash => [ "
+                                + getHashGeneratorService().getHash(tmpDestination, HashType.MD5)
+                                + " ].  "
+                                + "REASON: Hash values do not match.");
+                        
+                        // Still need to get rid of the temporary directory.
+                        removeTempDestination(icao);
                     }
                 }
                 else {
@@ -266,7 +286,25 @@ public abstract class DataUpdateService
                             + " ] failed.  Setting the download "
                             + "failed flag so it can be re-tried "
                             + "later.");
+                    
                     success = false;
+                    
+                    // Add the current product information to the error report.
+                    // Add a searchable error message for the product in 
+                    // question.
+                    LOGGER.error(
+                            "Error processing product UUID => [ "
+                            + uuid
+                            + " ], ICAO => [ "
+                            + icao
+                            + " ], TYPE => [ "
+                            + type
+                            + " ], FILENAME => [ "
+                            + filename
+                            + " ], SOURCE HASH => [ "
+                            + hash
+                            + " ].  "
+                            + "REASON: Unable to download.");
                 }
             }
             else {
@@ -371,9 +409,7 @@ public abstract class DataUpdateService
             
             // If the download failed flag is set to "failed" (i.e. 0 
             // retry the download.
-            if (localHoldings
-                    .getDownloadSuccess()
-                    .compareTo(BigDecimal.ZERO) == 0) {
+            if (localHoldings.getDownloadSuccess() == 0) {
                 
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Download failed flag is set for data "
@@ -569,7 +605,7 @@ public abstract class DataUpdateService
                     product.getHash(),
                     product.getLink())) { 
                 
-                finalData.setDownloadSuccess(new BigDecimal(1));
+                finalData.setDownloadSuccess(1);
             }
             else {
                 
@@ -579,7 +615,7 @@ public abstract class DataUpdateService
                         + "to [ 0 ] for UUID [ "
                         + finalData.getUUID()
                         + " ].");
-                finalData.setDownloadSuccess(new BigDecimal(0));
+                finalData.setDownloadSuccess(0);
             }
 
             // Persist the new information
@@ -638,7 +674,7 @@ public abstract class DataUpdateService
                     finalData.getFilename(),
                     product.getHash(),
                     product.getLink())) { 
-                finalData.setDownloadSuccess(new BigDecimal(1));
+                finalData.setDownloadSuccess(1);
             }
             else {
                 
@@ -648,7 +684,7 @@ public abstract class DataUpdateService
                         + "to [ 0 ] for UUID [ "
                         + finalData.getUUID()
                         + " ].");
-                finalData.setDownloadSuccess(new BigDecimal(0));
+                finalData.setDownloadSuccess(0);
             }
 
             // Persist the new information

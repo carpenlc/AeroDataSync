@@ -1,5 +1,7 @@
 package mil.nga.aero.interfaces;
 
+import javax.ejb.Remote;
+
 import mil.nga.aero.upg.exceptions.UPGDataException;
 import mil.nga.aero.upg.model.RawUPGData;
 
@@ -10,6 +12,7 @@ import mil.nga.aero.upg.model.RawUPGData;
  * 
  * @author L. Craig Carpenter
  */
+@Remote
 public interface AeroDataServiceI {
 
     /**

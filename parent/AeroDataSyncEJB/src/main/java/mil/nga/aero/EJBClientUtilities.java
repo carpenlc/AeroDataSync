@@ -14,6 +14,10 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import mil.nga.aero.interfaces.AeroDataMetricsStoreI;
+import mil.nga.aero.interfaces.AeroDataServiceI;
+import mil.nga.aero.interfaces.AeroDataStoreI;
+import mil.nga.aero.interfaces.AeroDataUpdateServiceI;
 import mil.nga.aero.jepp.JEPPDataService;
 import mil.nga.aero.jepp.JEPPDataUpdateService;
 import mil.nga.aero.jepp.jdbc.JDBCJEPPDataService;
@@ -52,7 +56,7 @@ public class EJBClientUtilities {
     /**
      * The specific JNDI interface to look up.
      */
-    private static final String PKG_INTERFACES = "org.jboss.ejb.client.naming";
+    private static final String PKG_INTERFACES = "org.jboss.naming.remote.client.InitialContextFactory";
     
     /**
      * The server MBean name used for obtaining information about the running 
@@ -75,6 +79,28 @@ public class EJBClientUtilities {
      * The name of the module (i.e. JAR) containing the EJBs
      */
     private static final String EJB_MODULE_NAME = "AeroDataSyncEJB";
+    
+    private boolean typeCorrect(String returnedType, String expectedType) {
+        boolean correct = false;
+        if ((returnedType != null) && (!returnedType.isEmpty())) {
+            String temp;
+            if (returnedType.contains("$$$")) {
+                temp = returnedType.substring(0, returnedType.indexOf("$$$"));
+            }
+            else {
+                temp = returnedType;
+            }
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Comparing return type [ "
+                        + temp
+                        + " ] with expected type [ "
+                        + expectedType
+                        + " ].");
+            }
+            correct = temp.equalsIgnoreCase(expectedType);
+        }
+        return correct;
+    }
     
     /**
      * Construct the JBoss appropriate JNDI lookup name for the input Class
@@ -113,6 +139,77 @@ public class EJBClientUtilities {
                     + " ].");
         }
         return name;
+    }
+    
+    /**
+     * Construct the JBoss appropriate JNDI lookup name for the input Class
+     * object.
+     * 
+     * @param clazz EJB class reference we want to look up.
+     * @return The JBoss appropriate JNDI lookup name.
+     */
+    private String getJNDIName(Class<?> clazz, Class<?> interfaceClazz) {
+        
+        String appName = EAR_APPLICATION_NAME;
+        String moduleName = EJB_MODULE_NAME;
+        
+        // String distinctName = "";
+        String beanName = clazz.getSimpleName();
+        String interfaceName = interfaceClazz.getName();
+        
+        // The following lookup is when using a local/remote interface
+        // view.
+        // String name = "ejb:" 
+        //        + appName + "/" 
+        //        + moduleName + "/" 
+        //        + distinctName + "/" 
+        //        + beanName + "!" + interfaceName;
+
+        // When using a no-interface view for the beans, the following is the
+        // lookup.
+        String name = "java:global/" 
+                + appName + "/"
+                + moduleName + "/"
+                + beanName + "!" + interfaceName;
+        
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Looking up [ "
+                    + name
+                    + " ].");
+        }
+        return name;
+    }
+    
+    /**
+     * Return the raw reference to the target EJB.
+     * 
+     * @param clazz The Class reference to look up.
+     * @return The superclass (Object) reference to the target EJB. 
+     */
+    private Object getEJB(Class<?> clazz, Class<?> interfaceClazz) {
+        
+        Object ejb  = null;
+        String name = getJNDIName(clazz, interfaceClazz);
+        
+        try {
+            Context ctx = getInitialContext();
+            if (ctx != null) {
+                ejb =  ctx.lookup(name);
+            }
+            else {
+                LOGGER.error("Unable to look up the InitialContext.  See "
+                        + "previous errors for more information.");
+            }
+        }
+        catch (NamingException ne) {
+            LOGGER.error("Unexpected NamingException attempting to "
+                    + "look up EJB [ "
+                    + name
+                    + " ].  Error encountered [ "
+                    + ne.getMessage()
+                    + " ].");
+        }
+        return ejb;
     }
     
     /**
@@ -215,18 +312,22 @@ public class EJBClientUtilities {
      * @return The JDBCJEPPDataServices interface, or null if we couldn't 
      * look it up.
      */
-    public JDBCJEPPDataService getJDBCJEPPDataService() {
+    public AeroDataStoreI getJDBCJEPPDataService() {
         
-        JDBCJEPPDataService service = null;
-        Object              ejb     = getEJB(JDBCJEPPDataService.class);
+        AeroDataStoreI service = null;
+        Object         ejb     = getEJB(
+                                    JDBCJEPPDataService.class, 
+                                    AeroDataStoreI.class);
         
         if (ejb != null) {
-            if (ejb instanceof mil.nga.aero.jepp.jdbc.JDBCJEPPDataService) {
-                service = (JDBCJEPPDataService)ejb;
+            if (ejb instanceof mil.nga.aero.interfaces.AeroDataStoreI) {
+                service = (AeroDataStoreI)ejb;
             }
             else {
                 LOGGER.error("Unable to look up EJB [ "
-                        + getJNDIName(JDBCJEPPDataService.class)
+                        + getJNDIName(
+                                JDBCJEPPDataService.class, 
+                                AeroDataStoreI.class)
                         + " ] returned reference was the wrong type.  "
                         + "Type returned [ "
                         + ejb.getClass().getCanonicalName()
@@ -235,7 +336,9 @@ public class EJBClientUtilities {
         }
         else {
             LOGGER.error("Unable to look up EJB [ "
-                    + getJNDIName(JDBCJEPPDataService.class)
+                    + getJNDIName(
+                            JDBCJEPPDataService.class, 
+                            AeroDataStoreI.class)
                     + " ] returned reference was null.");
         }
         return service;
@@ -248,18 +351,22 @@ public class EJBClientUtilities {
      * @return The JDBCUPGDataServices interface, or null if we couldn't 
      * look it up.
      */
-    public JDBCUPGDataService getJDBCUPGDataService() {
+    public AeroDataStoreI getJDBCUPGDataService() {
         
-        JDBCUPGDataService service = null;
-        Object             ejb     = getEJB(JDBCUPGDataService.class);
+        AeroDataStoreI service = null;
+        Object         ejb     = getEJB(
+                                    JDBCUPGDataService.class, 
+                                    AeroDataStoreI.class);
         
         if (ejb != null) {
-            if (ejb instanceof mil.nga.aero.upg.jdbc.JDBCUPGDataService) {
-                service = (JDBCUPGDataService)ejb;
+            if (ejb instanceof mil.nga.aero.interfaces.AeroDataStoreI) {
+                service = (AeroDataStoreI)ejb;
             }
             else {
                 LOGGER.error("Unable to look up EJB [ "
-                        + getJNDIName(JDBCUPGDataService.class)
+                        + getJNDIName(
+                                JDBCUPGDataService.class, 
+                                AeroDataStoreI.class)
                         + " ] returned reference was the wrong type.  "
                         + "Type returned [ "
                         + ejb.getClass().getCanonicalName()
@@ -268,7 +375,9 @@ public class EJBClientUtilities {
         }
         else {
             LOGGER.error("Unable to look up EJB [ "
-                    + getJNDIName(JDBCUPGDataService.class)
+                    + getJNDIName(
+                            JDBCUPGDataService.class, 
+                            AeroDataStoreI.class)
                     + " ] returned reference was null.");
         }
         return service;
@@ -314,18 +423,22 @@ public class EJBClientUtilities {
      * @return The UPGDataService interface, or null if we couldn't 
      * look it up.
      */
-    public UPGDataService getUPGDataService() {
+    public AeroDataServiceI getUPGDataService() {
         
-        UPGDataService service = null;
-        Object         ejb     = getEJB(UPGDataService.class);
+        AeroDataServiceI service = null;
+        Object           ejb     = getEJB(
+                                    UPGDataService.class, 
+                                    AeroDataServiceI.class);
         
         if (ejb != null) {
-            if (ejb instanceof mil.nga.aero.upg.UPGDataService) {
-                service = (UPGDataService)ejb;
+            if (ejb instanceof mil.nga.aero.interfaces.AeroDataServiceI) {
+                service = (AeroDataServiceI)ejb;
             }
             else {
                 LOGGER.error("Unable to look up EJB [ "
-                        + getJNDIName(UPGDataService.class)
+                        + getJNDIName(
+                                UPGDataService.class, 
+                                AeroDataServiceI.class)
                         + " ] returned reference was the wrong type.  "
                         + "Type returned [ "
                         + ejb.getClass().getCanonicalName()
@@ -334,7 +447,9 @@ public class EJBClientUtilities {
         }
         else {
             LOGGER.error("Unable to look up EJB [ "
-                    + getJNDIName(UPGDataService.class)
+                    + getJNDIName(
+                            UPGDataService.class, 
+                            AeroDataServiceI.class)
                     + " ] returned reference was null.");
         }
         return service;
@@ -347,18 +462,22 @@ public class EJBClientUtilities {
      * @return The UPGDataUpdateService interface, or null if we couldn't 
      * look it up.
      */
-    public UPGDataUpdateService getUPGDataUpdateService() {
+    public AeroDataUpdateServiceI getUPGDataUpdateService() {
         
-        UPGDataUpdateService service = null;
-        Object               ejb     = getEJB(UPGDataUpdateService.class);
+        AeroDataUpdateServiceI service = null;
+        Object                 ejb     = getEJB(
+                                            UPGDataUpdateService.class, 
+                                            AeroDataUpdateServiceI.class);
         
         if (ejb != null) {
-            if (ejb instanceof mil.nga.aero.upg.UPGDataUpdateService) {
-                service = (UPGDataUpdateService)ejb;
+            if (ejb instanceof mil.nga.aero.interfaces.AeroDataUpdateServiceI) {
+                service = (AeroDataUpdateServiceI)ejb;
             }
             else {
                 LOGGER.error("Unable to look up EJB [ "
-                        + getJNDIName(UPGDataUpdateService.class)
+                        + getJNDIName(
+                                UPGDataUpdateService.class, 
+                                AeroDataUpdateServiceI.class)
                         + " ] returned reference was the wrong type.  "
                         + "Type returned [ "
                         + ejb.getClass().getCanonicalName()
@@ -367,7 +486,9 @@ public class EJBClientUtilities {
         }
         else {
             LOGGER.error("Unable to look up EJB [ "
-                    + getJNDIName(UPGDataUpdateService.class)
+                    + getJNDIName(
+                            UPGDataUpdateService.class, 
+                            AeroDataUpdateServiceI.class)
                     + " ] returned reference was null.");
         }
         return service;
@@ -380,18 +501,22 @@ public class EJBClientUtilities {
      * @return The JEPPDataService interface, or null if we couldn't 
      * look it up.
      */
-    public JEPPDataService getJEPPDataService() {
+    public AeroDataServiceI getJEPPDataService() {
         
-        JEPPDataService service = null;
-        Object          ejb     = getEJB(JEPPDataService.class);
+        AeroDataServiceI service = null;
+        Object           ejb     = getEJB(
+                                    JEPPDataService.class, 
+                                    AeroDataServiceI.class);
         
         if (ejb != null) {
-            if (ejb instanceof mil.nga.aero.jepp.JEPPDataService) {
-                service = (JEPPDataService)ejb;
+            if (ejb instanceof mil.nga.aero.interfaces.AeroDataServiceI) {
+                service = (AeroDataServiceI)ejb;
             }
             else {
                 LOGGER.error("Unable to look up EJB [ "
-                        + getJNDIName(JEPPDataService.class)
+                        + getJNDIName(
+                                JEPPDataService.class, 
+                                AeroDataServiceI.class)
                         + " ] returned reference was the wrong type.  "
                         + "Type returned [ "
                         + ejb.getClass().getCanonicalName()
@@ -400,7 +525,9 @@ public class EJBClientUtilities {
         }
         else {
             LOGGER.error("Unable to look up EJB [ "
-                    + getJNDIName(JEPPDataService.class)
+                    + getJNDIName(
+                            JEPPDataService.class, 
+                            AeroDataServiceI.class)
                     + " ] returned reference was null.");
         }
         return service;
@@ -413,18 +540,22 @@ public class EJBClientUtilities {
      * @return The JEPPDataUpdateService interface, or null if we couldn't 
      * look it up.
      */
-    public JEPPDataUpdateService getJEPPDataUpdateService() {
+    public AeroDataUpdateServiceI getJEPPDataUpdateService() {
         
-        JEPPDataUpdateService service = null;
-        Object               ejb     = getEJB(JEPPDataUpdateService.class);
+        AeroDataUpdateServiceI service = null;
+        Object                 ejb     = getEJB(
+                JEPPDataUpdateService.class, 
+                AeroDataUpdateServiceI.class);
         
         if (ejb != null) {
-            if (ejb instanceof mil.nga.aero.jepp.JEPPDataUpdateService) {
-                service = (JEPPDataUpdateService)ejb;
+            if (ejb instanceof mil.nga.aero.interfaces.AeroDataUpdateServiceI) {
+                service = (AeroDataUpdateServiceI)ejb;
             }
             else {
                 LOGGER.error("Unable to look up EJB [ "
-                        + getJNDIName(JEPPDataUpdateService.class)
+                        + getJNDIName(
+                                JEPPDataUpdateService.class, 
+                                AeroDataUpdateServiceI.class)
                         + " ] returned reference was the wrong type.  "
                         + "Type returned [ "
                         + ejb.getClass().getCanonicalName()
@@ -433,7 +564,9 @@ public class EJBClientUtilities {
         }
         else {
             LOGGER.error("Unable to look up EJB [ "
-                    + getJNDIName(JEPPDataUpdateService.class)
+                    + getJNDIName(
+                            JEPPDataUpdateService.class, 
+                            AeroDataUpdateServiceI.class)
                     + " ] returned reference was null.");
         }
         return service;
@@ -446,18 +579,22 @@ public class EJBClientUtilities {
      * @return The JDBCJEPPMetricsService interface, or null if we couldn't 
      * look it up.
      */
-    public JDBCJEPPMetricsService getJDBCJEPPMetricsService() {
+    public AeroDataMetricsStoreI getJDBCJEPPMetricsService() {
         
-        JDBCJEPPMetricsService service = null;
-        Object                ejb     = getEJB(JDBCJEPPMetricsService.class);
+        AeroDataMetricsStoreI service = null;
+        Object         ejb     = getEJB(
+                                    JDBCJEPPMetricsService.class, 
+                                    AeroDataMetricsStoreI.class);
         
         if (ejb != null) {
-            if (ejb instanceof mil.nga.aero.jepp.jdbc.JDBCJEPPMetricsService) {
-                service = (JDBCJEPPMetricsService)ejb;
+            if (ejb instanceof mil.nga.aero.interfaces.AeroDataMetricsStoreI) {
+                service = (AeroDataMetricsStoreI)ejb;
             }
             else {
                 LOGGER.error("Unable to look up EJB [ "
-                        + getJNDIName(JDBCJEPPMetricsService.class)
+                        + getJNDIName(
+                                JDBCJEPPMetricsService.class, 
+                                AeroDataMetricsStoreI.class)
                         + " ] returned reference was the wrong type.  "
                         + "Type returned [ "
                         + ejb.getClass().getCanonicalName()
@@ -466,7 +603,9 @@ public class EJBClientUtilities {
         }
         else {
             LOGGER.error("Unable to look up EJB [ "
-                    + getJNDIName(JDBCJEPPMetricsService.class)
+                    + getJNDIName(
+                            JDBCJEPPMetricsService.class, 
+                            AeroDataMetricsStoreI.class)
                     + " ] returned reference was null.");
         }
         return service;
@@ -479,18 +618,22 @@ public class EJBClientUtilities {
      * @return The JDBCUPGMetricsService interface, or null if we couldn't 
      * look it up.
      */
-    public JDBCUPGMetricsService getJDBCUPGMetricsService() {
+    public AeroDataMetricsStoreI getJDBCUPGMetricsService() {
         
-        JDBCUPGMetricsService service = null;
-        Object                ejb     = getEJB(JDBCUPGMetricsService.class);
+        AeroDataMetricsStoreI service = null;
+        Object                ejb     = getEJB(
+                                          JDBCUPGMetricsService.class, 
+                                          AeroDataMetricsStoreI.class);
         
         if (ejb != null) {
-            if (ejb instanceof mil.nga.aero.upg.jdbc.JDBCUPGMetricsService) {
-                service = (JDBCUPGMetricsService)ejb;
+            if (ejb instanceof mil.nga.aero.interfaces.AeroDataMetricsStoreI) {
+                service = (AeroDataMetricsStoreI)ejb;
             }
             else {
                 LOGGER.error("Unable to look up EJB [ "
-                        + getJNDIName(JDBCUPGMetricsService.class)
+                        + getJNDIName(
+                                JDBCUPGMetricsService.class, 
+                                AeroDataMetricsStoreI.class)
                         + " ] returned reference was the wrong type.  "
                         + "Type returned [ "
                         + ejb.getClass().getCanonicalName()
@@ -499,7 +642,9 @@ public class EJBClientUtilities {
         }
         else {
             LOGGER.error("Unable to look up EJB [ "
-                    + getJNDIName(JDBCUPGMetricsService.class)
+                    + getJNDIName(
+                            JDBCUPGMetricsService.class,
+                            AeroDataMetricsStoreI.class)
                     + " ] returned reference was null.");
         }
         return service;

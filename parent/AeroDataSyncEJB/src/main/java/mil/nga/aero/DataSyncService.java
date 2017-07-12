@@ -54,6 +54,12 @@ public class DataSyncService
             DataSyncService.class);
     
     /**
+     * The data type to synchronize.  The construction of handles to all
+     * of the required EJBs is based on the value for the data type.
+     */
+    private AeroDataType type;
+    
+    /**
      * Internal handle to the interface responsible for retrieving the 
      * holdings from the source.
      */
@@ -91,10 +97,39 @@ public class DataSyncService
     }
     
     /**
+     * Getter method for the AeroDataServiceI interface.
+     * @return Reference to the proper AeroDataServiceI interface.
+     */
+    private AeroDataServiceI getAeroDataService() {
+        if (dataService == null) {
+            dataService = AeroDataFactory.getInstance()
+                    .construct(getType());
+        }
+        return dataService;
+    }
+    
+    /**
+     * Getter method for the AeroDataStoreI interface.
+     * @param type The aeronautical data type to synchronize.
+     * @return Reference to the proper AeroDataStoreI interface.
+     */
+    private AeroDataStoreI getAeroDataStoreService() {
+        if (dataStoreService == null) {
+            dataStoreService = AeroDataStoreFactory.getInstance()
+                .construct(getType());
+        }
+        return dataStoreService;
+    }
+    
+    /**
      * Getter method for the AeroDataUpdateServiceI interface.
      * @return Reference to the proper AeroDataUpdateServiceI interface.
      */
     private AeroDataUpdateServiceI getAeroDataUpdateService() {
+        if (dataUpdateService == null) {
+            dataUpdateService = AeroDataUpdateFactory.getInstance()
+                .construct(getType());
+        }
         return dataUpdateService;
     }
    
@@ -103,7 +138,19 @@ public class DataSyncService
      * @return Reference to the proper AeroDataServiceI interface.
      */
     private AeroDataMetricsStoreI getAeroMetricsService() {
+        if (metricsStoreService == null) {
+            metricsStoreService = AeroMetricsStoreFactory.getInstance()
+                    .construct(getType());
+        }
         return metricsStoreService;
+    }
+    
+    /**
+     * Getter method for the aero data type to synchronize.
+     * @return The aeronautical data type.
+     */
+    private AeroDataType getType() {
+        return this.type;
     }
     
     /**
@@ -319,46 +366,13 @@ public class DataSyncService
         return counter;
     }
     
+
     /**
-     * Getter method for the AeroDataServiceI interface.
-     * @return Reference to the proper AeroDataServiceI interface.
+     * Setter method for the aero data type so synchronize.
+     * @param type
      */
-    private AeroDataServiceI getAeroDataService(AeroDataType type) {
-        if (dataService == null) {
-            dataService = AeroDataFactory.getInstance().construct(type);
-        }
-        return dataService;
-    }
-    
-    /**
-     * Setter method for the internal AeroDataServiceI interface.
-     * @param type The aeronautical data type that we are processing.
-     */
-    private void setAeroDataUpdateService(AeroDataType type) {
-        dataUpdateService = AeroDataUpdateFactory.getInstance()
-                .construct(type);
-    }
-    
-    /**
-     * Getter method for the AeroDataStoreI interface.
-     * @param type The aeronautical data type to synchronize.
-     * @return Reference to the proper AeroDataStoreI interface.
-     */
-    private AeroDataStoreI getAeroDataStoreService(AeroDataType type) {
-        if (dataStoreService == null) {
-        dataStoreService = AeroDataStoreFactory.getInstance()
-                .construct(type);
-        }
-        return dataStoreService;
-    }
-    
-    /**
-     * Getter method for the AeroDataMetricsStoreI interface.
-     * @param type The aeronautical data type that we are processing.
-     */
-    private void setAeroMetricsService(AeroDataType type) {
-        metricsStoreService = AeroMetricsStoreFactory.getInstance()
-                .construct(type);
+    private void setType(AeroDataType type) {
+        this.type = type;
     }
     
     /**
@@ -376,40 +390,64 @@ public class DataSyncService
         Map<String, IntermediateUPGData> intermediate = null;
         Map<String, UPGData>             localHoldings  = null;
         
+        // Save the type for use throughout the synchronization process.
+        setType(type);
         LOGGER.info("Beginning data synchronization process for type [ "
-                + type
+                + getType()
                 + " ].");
         
         initializeMetrics();
 
-        setAeroDataUpdateService(type);
-        setAeroMetricsService(type);
-        
-        if ((getAeroDataService(type) == null) || 
-                (getAeroDataStoreService(type) == null)) {
-            LOGGER.error("Unable to obtain references to the required "
-                    + "services.  Synchronization operation cannot "
+        // Make sure we can look up all of the required object handles.
+        if (getAeroDataUpdateService() == null) {
+            LOGGER.error("Unable to obtain a reference to [ " 
+                    + "AeroDataUpdateServiceI"
+                    + " ].  Synchronization operation cannot "
+                    + "proceed.");
+            throw new UPGDataException(ErrorCodes.APPLICATION_EXCEPTION);           
+        }
+        if (getAeroMetricsService() == null) {
+            LOGGER.error("Unable to obtain a reference to [ " 
+                    + "AeroDataMetricsServiceI"
+                    + " ].  Synchronization operation cannot "
+                    + "proceed.");
+            throw new UPGDataException(ErrorCodes.APPLICATION_EXCEPTION);            
+        }
+        if (getAeroDataService() == null) {
+            LOGGER.error("Unable to obtain a reference to [ " 
+                    + "AeroDataServiceI"
+                    + " ].  Synchronization operation cannot "
+                    + "proceed.");
+            throw new UPGDataException(ErrorCodes.APPLICATION_EXCEPTION);
+        }
+        if (getAeroDataStoreService() == null) {
+            LOGGER.error("Unable to obtain a reference to [ " 
+                    + "AeroDataStoreServiceI"
+                    + " ].  Synchronization operation cannot "
                     + "proceed.");
             throw new UPGDataException(ErrorCodes.APPLICATION_EXCEPTION);
         }
             
-        rawData = getAeroDataService(type).getRawData();
-            
+        // Get the raw product data from the provider.
+        rawData = getAeroDataService().getRawData();
         if ((rawData != null) && 
                 (rawData.getData().size() > 0)) { 
                     
-            intermediate = new ProductBuilder(type).buildMap(rawData);
-                   
+            // Convert the raw product data to an intermediate format for 
+            // processing.
+            intermediate = new ProductBuilder(getType()).buildMap(rawData); 
             if ((intermediate != null) && 
-                            (intermediate.entrySet().size() > 0)) { 
+                    (intermediate.entrySet().size() > 0)) { 
                 
-                metricsBuilder.sourceHoldings(intermediate.entrySet().size());
-                localHoldings = getAeroDataStoreService(type).getData();
-                        
+                // Get the current local holdings.
+                localHoldings = getAeroDataStoreService().getData();
                 if ((localHoldings != null) && 
                                 (localHoldings.size() > 0)) {
                     
+                    // Update metrics.
+                    metricsBuilder.sourceHoldings(intermediate.entrySet().size());
                     metricsBuilder.localHoldings(localHoldings.size());
+                    
                     addProducts(
                             getProductsToAdd(
                                     intermediate, 
@@ -459,7 +497,7 @@ public class DataSyncService
             
             // Update and store the metrics data.
             metricsBuilder.failedDownloads(
-                    getAeroDataStoreService(type).getNumFailedDownloads());
+                    getAeroDataStoreService().getNumFailedDownloads());
             metricsBuilder.elapsedTime(System.currentTimeMillis() - startTime);
             metrics = metricsBuilder.build();
             LOGGER.info("Synchronization for data type [ "

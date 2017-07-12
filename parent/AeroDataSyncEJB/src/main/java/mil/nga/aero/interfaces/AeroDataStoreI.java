@@ -3,6 +3,8 @@ package mil.nga.aero.interfaces;
 import java.util.List;
 import java.util.Map;
 
+import javax.ejb.Remote;
+
 import mil.nga.aero.upg.model.UPGData;
 
 /**
@@ -14,6 +16,7 @@ import mil.nga.aero.upg.model.UPGData;
  * @author L. Craig Carpenter
  *
  */
+@Remote
 public interface AeroDataStoreI {
 
     /**

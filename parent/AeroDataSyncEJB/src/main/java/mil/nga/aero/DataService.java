@@ -398,7 +398,7 @@ public class DataService
      * @throws UPGException Thrown if any errors were encountered during the 
      * unmarshalling operation.
      */
-    public RawUPGData unmarshal (String data) throws UPGDataException {
+    public RawUPGData deserialize (String data) throws UPGDataException {
         
         RawUPGData obj   = null;
         long       start = System.currentTimeMillis();
