@@ -59,6 +59,6 @@ public class JEPPDataService
             throw new UPGDataException(ErrorCodes.PROPERTIES_NOT_LOADED);
         }
         
-        return unmarshal(getRawData(targetURL));
+        return deserialize(getRawData(targetURL));
     }
 }

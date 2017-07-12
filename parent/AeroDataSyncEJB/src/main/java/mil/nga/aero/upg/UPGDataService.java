@@ -59,7 +59,7 @@ public class UPGDataService
             throw new UPGDataException(ErrorCodes.PROPERTIES_NOT_LOADED);
         }
         
-        return unmarshal(getRawData(targetURL));
+        return deserialize(getRawData(targetURL));
     }
     
 }
