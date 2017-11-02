@@ -81,7 +81,7 @@ public class JEPPDataUpdateTimer {
      * 
      * @param t Container injected Timer object.
      */
-    @Schedule(second="0", minute="0", hour="0-23", dayOfWeek="*",
+    @Schedule(second="0", minute="0", hour="0-23/2", dayOfWeek="*",
     dayOfMonth="*", month="*", year="*", info="JEPPUpdateTimer")
     private void scheduledTimeout(final Timer t) {
         
