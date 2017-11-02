@@ -56,22 +56,29 @@ public class HashGeneratorService {
         boolean valid   = false;
         String  newHash = getHash(file, HashType.MD5);
         
-        if (newHash.equalsIgnoreCase(hash)) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Successfully validated hash for file [ "
-                        + file
-                        + " ].");
+        if ((newHash != null) && (!newHash.isEmpty())) {
+            if (newHash.equalsIgnoreCase(hash)) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Successfully validated hash for file [ "
+                            + file
+                            + " ].");
+                }
+                valid = true;
             }
-            valid = true;
+            else {
+                LOGGER.warn("Failed hash validation.  Calculated hash of [ "
+                    + newHash 
+                    + " ] for file [ "
+                    + file
+                    + " ] did not match expected hash of [ "
+                    + hash
+                    + " ] ");
+            }
         }
         else {
-            LOGGER.warn("Failed hash validation.  Calculated hash of [ "
-                + newHash 
-                + " ] for file [ "
-                + file
-                + " ] did not match expected hash of [ "
-                + hash
-                + " ] ");
+            LOGGER.error("Unable to validate the hash for file [ "
+                    + file 
+                    + " ].");
         }
         
         return valid;
@@ -139,7 +146,7 @@ public class HashGeneratorService {
                 LOGGER.error("Input file does not exists.  Input file "
                         + "specified [ "
                         + inputFile
-                        + " ].");
+                        + " ].  Null hash will be returned.");
             }
         }
         else {
