@@ -372,6 +372,14 @@ public class DataService
                     + " ]. Unexpected IOException encountered [ "
                     + ioe.getMessage()
                     + " ].");
+            
+            // Debugging message to see what the default timeout is.
+            if (ioe.getMessage().contains("imeout")) {
+            	LOGGER.error("HTTP GET request timed out in [ "
+            			+ (System.currentTimeMillis() - start)
+            			+ " ] ms.");
+            }
+            
             throw new UPGDataException(
                     ErrorCodes.IO_EXCEPTION);
         }

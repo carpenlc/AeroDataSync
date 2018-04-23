@@ -102,6 +102,133 @@ public class JDBCJEPPDataService implements AeroDataStoreI {
     }
     
     /**
+     * Retrieve a complete list of unique ICAO fields from the data store.
+     * @return A list of ICAOs
+     */
+    public List<String> getICAOList() {
+    	
+        Connection        conn   = null;
+        List<String>      icaos  = new ArrayList<String>();
+        PreparedStatement stmt   = null;
+        ResultSet         rs     = null;
+        long              start  = System.currentTimeMillis();
+        String            sql    = "select distinct(ICAO) from "
+        		+ "AEROBROWSER_JEPP order by ICAO";
+        
+        if (datasource != null) {
+            
+            try {
+                conn = datasource.getConnection();
+                stmt = conn.prepareStatement(sql);
+                rs   = stmt.executeQuery();
+                while (rs.next()) {
+                    icaos.add(rs.getString("ICAO"));
+                }
+            }
+            catch (SQLException se) {
+                
+                LOGGER.error("An unexpected SQLException was raised while "
+                        + "attempting to retrieve a list of ICAOs from the "
+                        + "target data source.  Error message => [ "
+                        + se.getMessage() 
+                        + " ].");
+                
+            }
+            finally {
+                try { 
+                    if (rs != null) { rs.close(); } 
+                } catch (Exception e) {}
+                try { 
+                    if (stmt != null) { stmt.close(); } 
+                } catch (Exception e) {}
+                try { 
+                    if (conn != null) { conn.close(); } 
+                } catch (Exception e) {}
+            }
+        }
+        else {
+            
+            LOGGER.warn("DataSource object not injected by the container.  "
+                    + "An empty List will be returned to the caller.");
+            
+        }
+        
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("[ "
+                    + icaos.size() 
+                    + " ] ICAOs selected in [ "
+                    + (System.currentTimeMillis() - start) 
+                    + " ] ms.");
+        }
+        
+        return icaos;
+    }
+    
+    /**
+     * Retrieve a complete list of unique TYPE fields from the data store.
+     * @return A list of TYPEs
+     */
+    public List<String> getTypeList() {
+    	
+        Connection        conn   = null;
+        List<String>      types  = new ArrayList<String>();
+        PreparedStatement stmt   = null;
+        ResultSet         rs     = null;
+        long              start  = System.currentTimeMillis();
+        String            sql    = "select distinct(TYPE) from "
+        		+ "AEROBROWSER_JEPP order by TYPE";
+        
+        if (datasource != null) {
+            
+            try {
+                conn = datasource.getConnection();
+                stmt = conn.prepareStatement(sql);
+                rs   = stmt.executeQuery();
+                while (rs.next()) {
+                    types.add(rs.getString("TYPE"));
+                }
+            }
+            catch (SQLException se) {
+                
+                LOGGER.error("An unexpected SQLException was raised while "
+                        + "attempting to retrieve a list of TYPEs from the "
+                        + "target data source.  Error message => [ "
+                        + se.getMessage() 
+                        + " ].");
+                
+            }
+            finally {
+                try { 
+                    if (rs != null) { rs.close(); } 
+                } catch (Exception e) {}
+                try { 
+                    if (stmt != null) { stmt.close(); } 
+                } catch (Exception e) {}
+                try { 
+                    if (conn != null) { conn.close(); } 
+                } catch (Exception e) {}
+            }
+        }
+        else {
+            
+            LOGGER.warn("DataSource object not injected by the container.  "
+                    + "An empty List will be returned to the caller.");
+            
+        }
+        
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("[ "
+                    + types.size() 
+                    + " ] TYPEs selected in [ "
+                    + (System.currentTimeMillis() - start) 
+                    + " ] ms.");
+        }
+        
+        return types;
+    	
+    }
+    
+    /**
      * Retrieve a complete list of UUIDs from the data store.
      * @return A list of UUIDs
      */

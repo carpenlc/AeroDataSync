@@ -45,6 +45,18 @@ public interface AeroDataStoreI {
     public Map<String, UPGData> getData();
     
     /**
+     * Retrieve a complete list of unique TYPE fields from the data store.
+     * @return A list of TYPEs
+     */
+    public List<String> getTypeList();
+    
+    /**
+     * Retrieve a complete list of unique ICAO fields from the data store.
+     * @return A list of ICAOs
+     */
+    public List<String> getICAOList();
+    
+    /**
      * Select the number of failed downloads from the data store.
      * 
      * @return The number of failed downloads.
