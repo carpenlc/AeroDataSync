@@ -56,7 +56,8 @@ public class EJBClientUtilities {
     /**
      * The specific JNDI interface to look up.
      */
-    private static final String PKG_INTERFACES = "org.jboss.naming.remote.client.InitialContextFactory";
+    private static final String PKG_INTERFACES = 
+    		"org.jboss.naming.remote.client.InitialContextFactory";
     
     /**
      * The server MBean name used for obtaining information about the running 

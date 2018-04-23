@@ -7,7 +7,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import mil.nga.aero.interfaces.AeroDataMetricsStoreI;
 import mil.nga.aero.interfaces.AeroDataStoreI;
+import mil.nga.aero.upg.model.Metrics;
 import mil.nga.aero.upg.model.UPGData;
 import mil.nga.types.AeroDataType;
 
@@ -35,6 +37,7 @@ public class AeroEJBClientUtilities {
     /**
      * Method used to look up the appropriate bean used to interface with 
      * the correct data store.
+     * 
      * @return The target bean implementing the AeroDataStoreI interface.
      */
     protected AeroDataStoreI getAeroDataStore() {
@@ -54,6 +57,31 @@ public class AeroEJBClientUtilities {
     	}
     	return service;
 
+    }
+    
+    /**
+     * Method used to look up the appropriate bean used to interface with 
+     * the correct metrics data store.
+     * 
+     * @return The target bean implementing the AeroDataMetricsStoreI 
+     * interface.
+     */
+    protected AeroDataMetricsStoreI getAeroDataMetricsStore() {
+    	AeroDataMetricsStoreI service = null;
+    	switch (this.type) {
+    		case JEPP:
+    			service = EJBClientUtilities
+    						.getInstance()
+    						.getJDBCJEPPMetricsService();
+    		case UPG:
+    			service = EJBClientUtilities
+    						.getInstance()
+    						.getJDBCUPGMetricsService();
+    		default:
+    			LOGGER.error("Unknown Aero type requested.  Returned service "
+    					+ "will be null.");
+    	}
+    	return service;
     }
     
     /**
@@ -111,6 +139,33 @@ public class AeroEJBClientUtilities {
                     + "The returned list of ICAOs will be empty.");
         }
         return icaos;
+    }
+    
+    /**
+     * Utilize the EJB session beans to look up a finite number of 
+     * synchronization runs.
+     * 
+     * @return The list of available products.
+     */
+    protected List<Metrics> loadMetrics() {
+    	List<Metrics> metrics = null;
+        if (getAeroDataMetricsStore() != null) {
+        	metrics = getAeroDataMetricsStore().select();
+        	if (metrics != null) {
+        		LOGGER.debug("Loaded [ "
+        				+ metrics.size()
+        				+ " ] distinct synchronization events from the data "
+        				+ "store.");
+        	}
+        	else {
+        		LOGGER.error("No records returned by the database call.");
+        	}
+        }
+        else {
+            LOGGER.error("Unable to obtain a reference to the target EJB.  "
+                    + "The returned list of metrics will be empty.");
+        }
+        return metrics;
     }
     
     /**
