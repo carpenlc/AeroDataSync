@@ -7,11 +7,14 @@ import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.regex.Pattern;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 
+import mil.nga.PropertyLoader;
+import mil.nga.aero.interfaces.AeroDataConstants;
 import mil.nga.aero.upg.model.UPGData;
 
 import org.primefaces.model.DefaultStreamedContent;
@@ -33,24 +36,19 @@ import org.slf4j.LoggerFactory;
  * @author L. Craig Carpenter
  */
 @ManagedBean
-public class DownloadBean 
-        
-        implements Serializable {
+public class UPGDownloadBean 
+		extends PropertyLoader
+		implements Serializable, AeroDataConstants {
 
     /**
      * Eclipse-generated serialVersionUID
      */
-    private static final long serialVersionUID = -5193223272254043322L;
+	private static final long serialVersionUID = -3601499600989523243L;
 
-    /**
+	/**
      * Static logger for use throughout the class.
      */
-    static final Logger LOGGER = LoggerFactory.getLogger(DownloadBean.class);
-    
-    /**
-     * Length of the hexadecimal token used as the download request ID
-     */
-    private static int TOKEN_LENGTH = 8;
+    static final Logger LOGGER = LoggerFactory.getLogger(UPGDownloadBean.class);
     
     /**
      * Handle to the streamed content object that will be returned when 
@@ -60,14 +58,77 @@ public class DownloadBean
     private StreamedContent fileToDownload;
     
     /**
+     * The base directory in which the target file is stored.
+     */
+    private String baseDir;
+    
+    /**
+     * The base URL that will appear in the file link.
+     */
+    private String baseURL;
+    
+    /**
+     * Default constructor
+     */
+    public UPGDownloadBean() {
+    	super(PROPERTIES_FILE);
+    	try {
+	    	setBaseDirectory(super.getProperty(UPG_DOWNLOAD_DIR));
+	    	setBaseURL(super.getProperty(UPG_BASE_URL));
+    	}
+    	catch (Exception e) {
+    		LOGGER.error("Error in constructor.  Error message => [ "
+    				+ e.getMessage()
+    				+ " ].");
+            FacesContext.getCurrentInstance().addMessage(
+                    null, 
+                    new FacesMessage(
+                            FacesMessage.SEVERITY_ERROR, 
+                            "Error!", 
+                            "Downloads unavailable."));
+    	}
+    }
+    
+    /**
+     * Setter method for the base URL.
+     * @param value The base URL.
+     */
+    private void setBaseURL(String value) {
+    	baseURL = value;
+    	if (value != null) { 
+    		baseURL = value;
+    	}
+    	else {
+    		baseURL = "";
+    	}
+    }
+    
+    /**
+     * Setter method for the base directory.
+     * @param value The base directory.
+     */
+    private void setBaseDirectory(String value) {
+    	if (value != null) { 
+    		baseDir = value;
+    	}
+    	else {
+    		baseDir = "";
+    	}
+    }
+    
+    /**
      * Construct the local filename from the input URL.
      * 
      * @param path The URL for the file.
      * @return The local path to the file.
      */
     private String getLocalPath(String path) {
-        Path p = Paths.get(path);
-        return p.getFileName().toString();
+    	LOGGER.debug("Replacing [ "
+    			+ baseURL
+    			+ " ] with [ "
+    			+ baseDir
+    			+ " ].");
+    	return path.replaceAll(Pattern.quote(baseURL), baseDir);
     }
     
     /**

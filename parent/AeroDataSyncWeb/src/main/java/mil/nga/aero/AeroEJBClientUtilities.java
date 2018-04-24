@@ -1,6 +1,8 @@
 package mil.nga.aero;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +15,12 @@ import mil.nga.aero.upg.model.Metrics;
 import mil.nga.aero.upg.model.UPGData;
 import mil.nga.types.AeroDataType;
 
+/**
+ * Class implementing interfaces and shared methods used to lookup
+ * EJB references and retrieve data from the data stores.
+ * 
+ * @author L. Craig Carpenter
+ */
 public class AeroEJBClientUtilities {
 
     /**
@@ -47,10 +55,12 @@ public class AeroEJBClientUtilities {
     			service = EJBClientUtilities
     						.getInstance()
     						.getJDBCJEPPDataService();
+    			break;
     		case UPG:
     			service = EJBClientUtilities
     						.getInstance()
     						.getJDBCUPGDataService();
+    			break;
     		default:
     			LOGGER.error("Unknown Aero type requested.  Returned service "
     					+ "will be null.");
@@ -73,10 +83,12 @@ public class AeroEJBClientUtilities {
     			service = EJBClientUtilities
     						.getInstance()
     						.getJDBCJEPPMetricsService();
+    			break;
     		case UPG:
     			service = EJBClientUtilities
     						.getInstance()
     						.getJDBCUPGMetricsService();
+    			break;
     		default:
     			LOGGER.error("Unknown Aero type requested.  Returned service "
     					+ "will be null.");
@@ -142,15 +154,33 @@ public class AeroEJBClientUtilities {
     }
     
     /**
+     * Calculate the time 30 days in the past.
+     * @param startTime The time to calculate the offset from.
+     * @return The time 30 days in past.
+     */
+    public long getTimeInPast(long startTime) {
+    	Calendar cal = new GregorianCalendar();
+    	cal.setTimeInMillis(startTime);
+    	cal.add(Calendar.DATE, -30);
+    	return cal.getTimeInMillis();
+    }
+    
+    /**
      * Utilize the EJB session beans to look up a finite number of 
      * synchronization runs.
      * 
      * @return The list of available products.
      */
     protected List<Metrics> loadMetrics() {
-    	List<Metrics> metrics = null;
+    	
+    	long          now       = System.currentTimeMillis();
+    	List<Metrics> metrics   = null;
+    	
         if (getAeroDataMetricsStore() != null) {
-        	metrics = getAeroDataMetricsStore().select();
+        	
+        	metrics = getAeroDataMetricsStore()
+        			.select(getTimeInPast(now), now);
+        	
         	if (metrics != null) {
         		LOGGER.debug("Loaded [ "
         				+ metrics.size()

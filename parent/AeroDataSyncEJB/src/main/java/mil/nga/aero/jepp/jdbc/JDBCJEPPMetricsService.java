@@ -272,8 +272,8 @@ public class JDBCJEPPMetricsService
                 
                 conn = datasource.getConnection();
                 stmt = conn.prepareStatement(sql);
-                stmt.setLong(1, start);
-                stmt.setLong(2, end);
+                stmt.setTimestamp(1, new Timestamp(start));
+                stmt.setTimestamp(2, new Timestamp(end));
                 rs   = stmt.executeQuery();
                 
                 while (rs.next()) {

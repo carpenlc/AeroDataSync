@@ -18,9 +18,11 @@ import javax.ejb.Stateless;
 
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,7 +151,15 @@ public class DataService
                 
                 try {
                     
-                    client = HttpClients.createDefault();
+                	// Updated to increase the connection timeout settings.
+                	RequestConfig config = RequestConfig.custom()
+                			.setConnectTimeout(60 * 1000)
+                			.setSocketTimeout(5 * 60 * 1000)
+                			.setConnectionRequestTimeout(5 * 1000)
+                			.build();
+                	client = HttpClientBuilder.create()
+                			.setDefaultRequestConfig(config)
+                			.build();
                     encodedURL = getEncodedURL(source);
                     request = new HttpGet(encodedURL);
                     request.addHeader("User-Agent", DEFAULT_USER_AGENT);
@@ -293,15 +303,24 @@ public class DataService
      */
     public String getRawData(String targetURL) throws UPGDataException {
         
-        CloseableHttpClient   client   = HttpClients.createDefault();
         BufferedReader        reader   = null;
         HttpGet               request  = new HttpGet(targetURL);
         CloseableHttpResponse response = null;
         StringBuilder         sb       = new StringBuilder();
         long                  start    = System.currentTimeMillis();
+        CloseableHttpClient   client   = null;
         
         try {
             
+        	// Updated to increase the connection timeout settings.
+        	RequestConfig config = RequestConfig.custom()
+        			.setConnectTimeout(60 * 1000)
+        			.setSocketTimeout(5 * 60 * 1000)
+        			.setConnectionRequestTimeout(5 * 1000)
+        			.build();
+        	client = HttpClientBuilder.create()
+        			.setDefaultRequestConfig(config)
+        			.build();
             request.addHeader("User-Agent", DEFAULT_USER_AGENT);
             request.addHeader("Accept", "application/json");
             
@@ -374,7 +393,7 @@ public class DataService
                     + " ].");
             
             // Debugging message to see what the default timeout is.
-            if (ioe.getMessage().contains("imeout")) {
+            if (ioe.getMessage().contains("imed out")) {
             	LOGGER.error("HTTP GET request timed out in [ "
             			+ (System.currentTimeMillis() - start)
             			+ " ] ms.");

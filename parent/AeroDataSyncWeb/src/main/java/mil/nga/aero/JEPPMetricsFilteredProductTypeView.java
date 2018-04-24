@@ -33,7 +33,7 @@ public class JEPPMetricsFilteredProductTypeView
 	/**
 	 * Total number of synchronization events.
 	 */
-	private int totalNumEvents; 
+	private int totalNumSyncEvents; 
 	
     /**
      * List containing all of currently available products.  This list will 
@@ -57,7 +57,7 @@ public class JEPPMetricsFilteredProductTypeView
      * Constructor setting the superclass type to UPG.
      */
     public JEPPMetricsFilteredProductTypeView() {
-    	super(AeroDataType.UPG);
+    	super(AeroDataType.JEPP);
     }
 	
     /**
@@ -70,7 +70,12 @@ public class JEPPMetricsFilteredProductTypeView
             LOGGER.debug("Constructor called.");
         }
         syncEvents = super.loadMetrics();
-        totalNumEvents = syncEvents.size();
+        if (syncEvents != null) {
+        	totalNumSyncEvents = syncEvents.size();
+        }
+        else {
+        	totalNumSyncEvents = 0;
+        }
     }
     
     
@@ -79,7 +84,7 @@ public class JEPPMetricsFilteredProductTypeView
      * applied.
      * @return list The filtered list of sync events.
      */
-    public List<Metrics> getFilteredProducts( ) {
+    public List<Metrics> getFilteredSyncEvents( ) {
         return filteredSyncEvents;
     }
     
@@ -103,8 +108,8 @@ public class JEPPMetricsFilteredProductTypeView
      * Getter method for the the total number of synchronization events.
      * @return The total number of synchronization events.
      */
-    public int getTotalNumProducts() {
-        return totalNumEvents;
+    public int getTotalNumSyncEvents() {
+        return totalNumSyncEvents;
     }
     
     /**
@@ -112,7 +117,7 @@ public class JEPPMetricsFilteredProductTypeView
      * applied.
      * @param list The filtered list of metrics data.
      */
-    public void setFilteredProducts(List<Metrics> list) {
+    public void setFilteredSyncEvents(List<Metrics> list) {
         filteredSyncEvents = list;
     }
     
@@ -122,7 +127,7 @@ public class JEPPMetricsFilteredProductTypeView
      * 
      * @param value The currently selected Product.
      */
-    public void setSelectedProduct(Metrics value) {
+    public void setSelectedSyncEvent(Metrics value) {
         if (value != null) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Product selected [ "

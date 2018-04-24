@@ -6,7 +6,7 @@
 	xmlns:p="http://primefaces.org/ui">
 
 <h:head>
-	<title>UPG</title>
+	<title>UPG/JEPP</title>
 	<link rel="shortcut icon" type="image/x-icon"
 		href="#{resource['images/favicon.ico']}" />
 	<h:outputStylesheet name="css/default.css" />
@@ -106,7 +106,7 @@ body {
 	<div id="content">
 		<h1 class="page-title">
 			<img src="#{resource['icons/agency-bullet.gif']}" alt="" />
-			Aeronautical UPG Data
+			Aeronautical UPG/JEPP Data
 		</h1>
 	</div>
 	<br clear="all" />
@@ -119,15 +119,19 @@ body {
 			closeable="true" />
 		<p:tabView>
 		
-		<p:tab title="UPGs">
+		<p:tab title="UPG">
 		
 		<p:panel styleClass="top-aligned">
 			<p:dataTable id="filteredProductListDT"
 				widgetVar="filteredProductsDataTable"
-				value="#{filteredProductTypeView.products}" rowKey="#{product.UUID}"
-				var="product" paginator="true" rows="15"
+				value="#{filteredProductTypeView.products}" 
+				rowKey="#{product.UUID}"
+				var="product" 
+				paginator="true" 
+				rows="15"
 				paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-				rowsPerPageTemplate="5,10,15" selectionMode="single"
+				rowsPerPageTemplate="5,10,15" 
+				selectionMode="single"
 				selection="#{filteredProductTypeView.selectedProduct}"
 				styleClass="top-aligned"
 				filteredValue="#{filteredProductTypeView.filteredProducts}">
@@ -172,17 +176,162 @@ body {
 					<p:commandButton value="Download" ajax="false"
 						icon="ui-icon-arrowthick-1-s"
 						onClick="PrimeFaces.monitorDownload(start, stop);">
-						<p:fileDownload value="#{downloadBean.getFile(product)}" />
+						<p:fileDownload value="#{uPGDownloadBean.getFile(product)}" />
 					</p:commandButton>
 				</p:column>
 			</p:dataTable>
-
-
 		</p:panel>
 		</p:tab>
-		<p:tab title="Sync Metrics">
+	    <p:tab title="JEPP">	
 		    <p:panel styleClass="top-aligned">
-		    
+			    <p:dataTable id="jEPPFilteredProductListDT"
+				             widgetVar="jEPPFilteredProductsDataTable"
+				             value="#{jEPPFilteredProductTypeView.products}" 
+				             rowKey="#{jeppProduct.UUID}"
+				             var="jeppProduct" 
+				             paginator="true" 
+				             rows="15"
+				             paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+				             rowsPerPageTemplate="5,10,15" 
+				             selectionMode="single"
+				             selection="#{jEPPFilteredProductTypeView.selectedProduct}"
+				             styleClass="top-aligned"
+				             filteredValue="#{jEPPFilteredProductTypeView.filteredProducts}">
+				    <f:facet name="header">
+					    <h:outputText value="JEPP (total #{jEPPFilteredProductTypeView.totalNumProducts})"></h:outputText>
+				    </f:facet>
+				<p:column headerText="Type" filterMatchMode="exact"
+					sortBy="#{jeppProduct.type}" filterBy="#{jeppProduct.type}">
+					<f:facet name="filter">
+						<p:selectOneMenu
+							onchange="PF('jEPPFilteredProductsDataTable').filter()">
+							<f:selectItem itemLabel="Select One" itemValue="#{null}"
+								noSelectionOption="true" />
+							<f:selectItems
+								value="#{jEPPFilteredProductTypeView.availableTypes}" />
+						</p:selectOneMenu>
+					</f:facet>
+					<h:outputText value="#{jeppProduct.type}" style="center" />
+				</p:column>
+				<p:column headerText="ICAO" filterMatchMode="exact"
+					sortBy="#{jeppProduct.ICAO}" filterBy="#{jeppProduct.ICAO}">
+					<f:facet name="filter">
+						<p:selectOneMenu
+							onchange="PF('jEPPFilteredProductsDataTable').filter()">
+							<f:selectItem itemLabel="Select One" itemValue="#{null}"
+								noSelectionOption="true" />
+							<f:selectItems
+								value="#{jEPPFilteredProductTypeView.availableICAOs}" />
+						</p:selectOneMenu>
+					</f:facet>
+					<h:outputText value="#{jeppProduct.ICAO}" />
+				</p:column>
+				<p:column headerText="Psuedoname" sortBy="#{jeppProduct.psuedoName}"
+					filterBy="#{jeppProduct.psuedoName}" filterMatchMode="contains">
+					<h:outputText value="#{jeppProduct.psuedoName}"></h:outputText>
+				</p:column>
+				<p:column headerText="Last Modified" sortBy="#{product.dateLastModifiedString}"
+					filterBy="#{jeppProduct.dateLastModifiedString}" filterMatchMode="contains">
+					<h:outputText value="#{jeppProduct.dateLastModifiedString}"></h:outputText>
+				</p:column>
+				<p:column headerText="Download">
+					<p:commandButton value="Download" ajax="false"
+						icon="ui-icon-arrowthick-1-s"
+						onClick="PrimeFaces.monitorDownload(start, stop);">
+						<p:fileDownload value="#{jEPPDownloadBean.getFile(jeppProduct)}" />
+					</p:commandButton>
+				</p:column>
+			</p:dataTable>
+		</p:panel>
+		</p:tab>
+		<p:tab title="UPG Sync Metrics">
+		    <p:panel styleClass="top-aligned">
+		        <p:dataTable id="uPGMetricsFilteredProductListDT"
+				             widgetVar="upgMetricsFilteredProductsDataTable"
+				             value="#{uPGMetricsFilteredProductTypeView.syncEvents}" 
+				             rowKey="#{metrics.executionTime}"
+				             var="metrics" 
+				             paginator="true" 
+				             rows="15"
+				             paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+				             rowsPerPageTemplate="5,10,15" 
+				             selectionMode="single"
+				             selection="#{uPGMetricsFilteredProductTypeView.selectedSyncEvent}"
+				             styleClass="top-aligned"
+				             filteredValue="#{uPGMetricsFilteredProductTypeView.filteredSyncEvents}">
+				<f:facet name="header">
+					<h:outputText value="Synchronization Events (last 30 days)"></h:outputText>
+				</f:facet>
+				<p:column headerText="Start Time" sortBy="#{metrics.executionTimeString}">
+					<h:outputText value="#{metrics.executionTimeString}"></h:outputText>
+				</p:column>
+				<p:column headerText="Products Added" sortBy="#{metrics.numProductsAdded}">
+					<h:outputText value="#{metrics.numProductsAdded}"></h:outputText>
+				</p:column>
+				<p:column headerText="Products Updated" sortBy="#{metrics.numProductsUpdated}">
+					<h:outputText value="#{metrics.numProductsUpdated}"></h:outputText>
+				</p:column>
+				<p:column headerText="Products Removed" sortBy="#{metrics.numProductsRemoved}">
+					<h:outputText value="#{metrics.numProductsRemoved}"></h:outputText>
+				</p:column>
+				<p:column headerText="Failed Downloads" sortBy="#{metrics.numFailedDownloads}">
+					<h:outputText value="#{metrics.numFailedDownloads}"></h:outputText>
+				</p:column>
+				<p:column headerText="Local Holdings" sortBy="#{metrics.localHoldings}">
+					<h:outputText value="#{metrics.localHoldings}"></h:outputText>
+				</p:column>
+				<p:column headerText="Source Holdings" sortBy="#{metrics.sourceHoldings}">
+					<h:outputText value="#{metrics.sourceHoldings}"></h:outputText>
+				</p:column>
+				<p:column headerText="Elapsed Time" sortBy="#{metrics.elapsedTime}">
+					<h:outputText value="#{metrics.elapsedTime} ms"></h:outputText>
+				</p:column>
+			</p:dataTable>
+		    </p:panel>
+		</p:tab>
+		<p:tab title="JEPP Sync Metrics">
+		    <p:panel styleClass="top-aligned">
+		        <p:dataTable id="jEPPMetricsFilteredProductListDT"
+				             widgetVar="jEPPMetricsFilteredProductsDataTable"
+				             value="#{jEPPMetricsFilteredProductTypeView.syncEvents}" 
+				             rowKey="#{jeppMetrics.executionTime}"
+				             var="jeppMetrics" 
+				             paginator="true" 
+				             rows="15"
+				             paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+				             rowsPerPageTemplate="5,10,15" 
+				             selectionMode="single"
+				             selection="#{jEPPMetricsFilteredProductTypeView.selectedSyncEvent}"
+				             styleClass="top-aligned"
+				             filteredValue="#{jEPPetricsFilteredProductTypeView.filteredSyncEvents}">
+				<f:facet name="header">
+					<h:outputText value="JEPP Synchronization Events (last 30 days)"></h:outputText>
+				</f:facet>
+				<p:column headerText="Start Time" sortBy="#{jeppMetrics.executionTimeString}">
+					<h:outputText value="#{jeppMetrics.executionTimeString}"></h:outputText>
+				</p:column>
+				<p:column headerText="Products Added" sortBy="#{jeppMetrics.numProductsAdded}">
+					<h:outputText value="#{jeppMetrics.numProductsAdded}"></h:outputText>
+				</p:column>
+				<p:column headerText="Products Updated" sortBy="#{jeppMetrics.numProductsUpdated}">
+					<h:outputText value="#{jeppMetrics.numProductsUpdated}"></h:outputText>
+				</p:column>
+				<p:column headerText="Products Removed" sortBy="#{jeppMetrics.numProductsRemoved}">
+					<h:outputText value="#{jeppMetrics.numProductsRemoved}"></h:outputText>
+				</p:column>
+				<p:column headerText="Failed Downloads" sortBy="#{jeppMetrics.numFailedDownloads}">
+					<h:outputText value="#{jeppMetrics.numFailedDownloads}"></h:outputText>
+				</p:column>
+				<p:column headerText="Local Holdings" sortBy="#{jeppMetrics.localHoldings}">
+					<h:outputText value="#{jeppMetrics.localHoldings}"></h:outputText>
+				</p:column>
+				<p:column headerText="Source Holdings" sortBy="#{jeppMetrics.sourceHoldings}">
+					<h:outputText value="#{jeppMetrics.sourceHoldings}"></h:outputText>
+				</p:column>
+				<p:column headerText="Elapsed Time" sortBy="#{jeppMetrics.elapsedTime}">
+					<h:outputText value="#{jeppMetrics.elapsedTime} ms"></h:outputText>
+				</p:column>
+			</p:dataTable>
 		    </p:panel>
 		</p:tab>
 		</p:tabView>
