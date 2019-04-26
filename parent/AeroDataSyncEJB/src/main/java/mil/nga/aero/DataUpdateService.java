@@ -216,11 +216,28 @@ public abstract class DataUpdateService
             if ((getDataService() != null) 
                     && (getHashGeneratorService() != null)) {
                 
-                // Retrieve the target UPG file from Leidos 
-                success = getDataService().getProductFile(
-                        sourceFile, 
-                        tmpDestination);
+            	// LCC - Updated 20190426 
+            	// Exceptions retrieving data from the source should be caught
+            	// here so that we can retry the downloads later.
+            	try {
+            		
+	                // Retrieve the target UPG file from Leidos 
+	                success = getDataService().getProductFile(
+	                        sourceFile, 
+	                        tmpDestination);
                 
+            	}
+            	catch (UPGDataException ude) { 
+            		LOGGER.error("Error downloading the target source file [ "
+            				+ sourceFile
+            				+ " ].  Error code => [ "
+            				+ ude.getErrorCode()
+            				+ " ], Error message => [ "
+            				+ ude.getMessage()
+            				+ " ].  Target download will be retried the next "
+            				+ " the synchronization timer is invoked.");
+            	}
+            	
                 if (success) {
                     
                     // Check to ensure the hashes match.
