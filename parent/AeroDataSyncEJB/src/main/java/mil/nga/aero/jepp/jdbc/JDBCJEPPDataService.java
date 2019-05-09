@@ -660,12 +660,13 @@ public class JDBCJEPPDataService implements AeroDataStoreI {
      * @param file <code>AEROBROWSER_JEPP</code> object containing updated state 
      * information.
      */
-    public void updateData(UPGData data) {
-        
-        Connection        conn   = null;
-        PreparedStatement stmt   = null;
-        long              start  = System.currentTimeMillis();
-        String            sql    = "update AEROBROWSER_JEPP set "
+    public int updateData(UPGData data) {
+    	
+        int               numRecords = 0;
+        Connection        conn       = null;
+        PreparedStatement stmt       = null;
+        long              start      = System.currentTimeMillis();
+        String            sql        = "update AEROBROWSER_JEPP set "
                 + "ICAO = ?, DATE_LAST_MODIFIED = ?, LINK = ?, "
                 + "FILENAME = ? , SUCCESS_DL = ?, PSUEDONAME = ?, "
                 + "TYPE = ?, LEIDOS_LINK = ?, HASH = ? where UUID = ?";
@@ -690,7 +691,7 @@ public class JDBCJEPPDataService implements AeroDataStoreI {
                     stmt.setString( 8, data.getSourceLink());
                     stmt.setString( 9, data.getHash());
                     stmt.setString(10, data.getUUID());
-                    stmt.executeUpdate();
+                    numRecords = stmt.executeUpdate();
                 }
                 catch (SQLException se) {
                     LOGGER.error("An unexpected SQLException was raised while "
@@ -723,5 +724,6 @@ public class JDBCJEPPDataService implements AeroDataStoreI {
                     + (System.currentTimeMillis() - start) 
                     + " ] ms.");
         }
+        return numRecords;
     }
 }

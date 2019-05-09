@@ -93,6 +93,6 @@ public interface AeroDataStoreI {
      * @param data UPGData object containing updated state 
      * information.
      */
-    public void updateData(UPGData data);
+    public int updateData(UPGData data);
     
 }

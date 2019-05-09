@@ -658,12 +658,13 @@ public class JDBCUPGDataService implements AeroDataStoreI {
      * @param file <code>AEROBROWSER_UPG</code> object containing updated state 
      * information.
      */
-    public void updateData(UPGData data) {
-        
-        Connection        conn   = null;
-        PreparedStatement stmt   = null;
-        long              start  = System.currentTimeMillis();
-        String            sql    = "update AEROBROWSER_UPG set "
+    public int updateData(UPGData data) {
+    	
+    	int               numRecords = 0;
+        Connection        conn       = null;
+        PreparedStatement stmt       = null;
+        long              start      = System.currentTimeMillis();
+        String            sql        = "update AEROBROWSER_UPG set "
                 + "ICAO = ?, DATE_LAST_MODIFIED = ?, LINK = ?, "
                 + "FILENAME = ? , SUCCESS_DL = ?, PSUEDONAME = ?, "
                 + "TYPE = ?, LEIDOS_URL = ? where UUID = ?";
@@ -691,7 +692,7 @@ public class JDBCUPGDataService implements AeroDataStoreI {
                     stmt.setString(8, data.getSourceLink());
                     stmt.setString(9, data.getUUID());
                     
-                    stmt.executeUpdate();
+                    numRecords = stmt.executeUpdate();
                 }
                 catch (SQLException se) {
                     LOGGER.error("An unexpected SQLException was raised while "
@@ -724,5 +725,6 @@ public class JDBCUPGDataService implements AeroDataStoreI {
                     + (System.currentTimeMillis() - start) 
                     + " ] ms.");
         }
+        return numRecords;
     }
 }
