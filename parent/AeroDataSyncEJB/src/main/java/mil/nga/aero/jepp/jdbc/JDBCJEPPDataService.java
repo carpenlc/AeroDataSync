@@ -687,9 +687,9 @@ public class JDBCJEPPDataService implements AeroDataStoreI {
                     stmt.setLong(   5, data.getDownloadSuccess());
                     stmt.setString( 6, data.getPsuedoName());
                     stmt.setString( 7, data.getType());
-                    stmt.setString( 8, data.getUUID());
-                    stmt.setString( 9, data.getSourceLink());
-                    stmt.setString(10, data.getHash());
+                    stmt.setString( 8, data.getSourceLink());
+                    stmt.setString( 9, data.getHash());
+                    stmt.setString(10, data.getUUID());
                     stmt.executeUpdate();
                 }
                 catch (SQLException se) {
