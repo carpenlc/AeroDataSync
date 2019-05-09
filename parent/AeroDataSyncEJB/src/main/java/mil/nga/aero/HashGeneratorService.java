@@ -6,17 +6,12 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
-
 import mil.nga.types.HashType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Session Bean implementation class HashGeneratorService
- * 
  * This EJB is invoked after the archive files are created.  It will 
  * construct a hash of the supplied input file.  This service is also used 
  * by the validation algorithm generating a hash that can be used to 
@@ -29,8 +24,6 @@ import org.slf4j.LoggerFactory;
  * 
  * @author L. Craig Carpenter
  */
-@Stateless
-@LocalBean
 public class HashGeneratorService {
 
     /**
@@ -41,7 +34,7 @@ public class HashGeneratorService {
     /**
      * Default constructor. 
      */
-    public HashGeneratorService() { }
+    private HashGeneratorService() { }
     
     /**
      * Check the input hash against a previously generated hash.
@@ -214,6 +207,17 @@ public class HashGeneratorService {
                     + "The hash will not be generated.");
         }
     }
+    
+    /**
+     * Accessor method for the singleton instance of the 
+     * <code>HashGeneratorService</code> class.
+     * 
+     * @return The singleton instance of the 
+     * <code>HashGeneratorService</code> class.
+     */
+    public static HashGeneratorService getInstance() {
+        return HashGeneratorServiceHolder.getSingleton();
+    }   
     
     /**
      * Calculate the MD5 hash using the Apache Commons Codec classes.  
@@ -435,4 +439,28 @@ public class HashGeneratorService {
         }
     }
 
+    /**
+     * Static inner class used to construct the Singleton object.  This class
+     * exploits the fact that classes are not loaded until they are referenced
+     * therefore enforcing thread safety without the performance hit imposed
+     * by the <code>synchronized</code> keyword.
+     * 
+     * @author L. Craig Carpenter
+     */
+    public static class HashGeneratorServiceHolder {
+        
+        /**
+         * Reference to the Singleton instance of the ClientUtility
+         */
+        private static HashGeneratorService _instance = new HashGeneratorService();
+    
+        /**
+         * Accessor method for the singleton instance of the ClientUtility.
+         * @return The Singleton instance of the client utility.
+         */
+        public static HashGeneratorService getSingleton() {
+            return _instance;
+        }
+        
+    }
 }

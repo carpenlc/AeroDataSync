@@ -100,29 +100,6 @@ public abstract class DataUpdateService
     }
     
     /**
-     * Private method used to obtain a reference to the target EJB. 
-     * This was added in case the application is deployed to JBoss  
-     * EAP 6.3 or earlier which periodically had problems with bean 
-     * injection.
-     * 
-     * @return Reference to the UPGDataService EJB.
-     */
-    private HashGeneratorService getHashGeneratorService() {
-        
-        if (hashGeneratorService == null) {
-            
-            LOGGER.warn("Application container failed to inject the "
-                    + "reference to UPGDataService.  Attempting to "
-                    + "look it up via JNDI.");
-            hashGeneratorService = EJBClientUtilities
-                    .getInstance()
-                    .getHashGeneratorService();
-        
-        }
-        return hashGeneratorService;
-    }
-    
-    /**
      * This method calculates the final destination directory where the 
      * updated UPG data record will reside. The temp file will be moved to 
      * this location.
@@ -213,8 +190,7 @@ public abstract class DataUpdateService
             String finalDestination = getFinalDestinationFilename (
                     icao, type, filename);
             
-            if ((getDataService() != null) 
-                    && (getHashGeneratorService() != null)) {
+            if (getDataService() != null) {
                 
             	// LCC - Updated 20190426 
             	// Exceptions retrieving data from the source should be caught
@@ -241,7 +217,7 @@ public abstract class DataUpdateService
                 if (success) {
                     
                     // Check to ensure the hashes match.
-                    if (getHashGeneratorService().checkHash(
+                    if (HashGeneratorService.getInstance().checkHash(
                                 tmpDestination,
                                 hash,
                                 HashType.MD5)) {
@@ -297,7 +273,8 @@ public abstract class DataUpdateService
                                 + " ], SOURCE HASH => [ "
                                 + hash
                                 + " ], expected hash => [ "
-                                + getHashGeneratorService().getHash(tmpDestination, HashType.MD5)
+                                + HashGeneratorService.getInstance()
+                                	.getHash(tmpDestination, HashType.MD5)
                                 + " ].  "
                                 + "REASON: Hash values do not match.");
                         

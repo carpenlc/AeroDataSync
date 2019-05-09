@@ -274,39 +274,6 @@ public class EJBClientUtilities {
     }    
     
     /**
-     * Utility method used to look up the HashGeneratorService interface.  
-     * This method is only called by the web tier.
-     * 
-     * @return The HashGeneratorService interface, or null if we couldn't 
-     * look it up.
-     */
-    public HashGeneratorService getHashGeneratorService() {
-        
-        HashGeneratorService service = null;
-        Object               ejb     = getEJB(HashGeneratorService.class);
-        
-        if (ejb != null) {
-            if (ejb instanceof mil.nga.aero.HashGeneratorService) {
-                service = (HashGeneratorService)ejb;
-            }
-            else {
-                LOGGER.error("Unable to look up EJB [ "
-                        + getJNDIName(HashGeneratorService.class)
-                        + " ] returned reference was the wrong type.  "
-                        + "Type returned [ "
-                        + ejb.getClass().getCanonicalName()
-                        + " ].");
-            }
-        }
-        else {
-            LOGGER.error("Unable to look up EJB [ "
-                    + getJNDIName(HashGeneratorService.class)
-                    + " ] returned reference was null.");
-        }
-        return service;
-    }
-    
-    /**
      * Utility method used to look up the JDBCJEPPDataServices interface.  
      * This method is only called by the web tier.
      * 
