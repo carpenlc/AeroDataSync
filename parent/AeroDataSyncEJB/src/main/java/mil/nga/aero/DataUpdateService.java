@@ -261,6 +261,15 @@ public abstract class DataUpdateService
                         // it's final destination.
                         FileUtils.move(tmpDestination, finalDestination);
 
+                        if (!FileUtils.setPosixFilePermissions(
+                        		finalDestination, 
+                        		DEFAULT_FILE_PERMISSIONS)) {
+                        	LOGGER.warn("Unable to set the file permissions "
+                        			+ "on target file [ "
+                        			+ finalDestination
+                        			+ " ]");
+                        }
+                        
                         // Get rid of the temporary destination directory
                         removeTempDestination(icao);
                         
@@ -446,8 +455,12 @@ public abstract class DataUpdateService
                             localHoldings.getFilename())))) {
                 
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Expected on-disk file associated with "
-                            + "data type [ "
+                    LOGGER.debug("Expected on-disk file [ "
+                    		+ getFinalDestinationFilename(
+                    				localHoldings.getICAO(), 
+                                    localHoldings.getType(),
+                                    localHoldings.getFilename())
+                    		+ " ] associated with data type [ "
                             + getDataType().getText()
                             + " ] and UUID [ "
                             + localHoldings.getUUID()

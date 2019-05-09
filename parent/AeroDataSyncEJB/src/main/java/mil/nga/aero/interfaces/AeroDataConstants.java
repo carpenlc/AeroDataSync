@@ -48,5 +48,30 @@ public interface AeroDataConstants {
      */
     public static String DEFAULT_USER_AGENT = "Mozilla/5.0";
     
+    /**
+     * Property containing the Oracle driver class (varies by Oracle client 
+     * version)
+     */
+    public static final String ORACLE_DRIVER_CLASS_PROPERTY = "ORACLE_DRIVER_CLASS";
+    
+    /**
+     * Property containing the DBC URL to the target database
+     */
+    public static final String ORACLE_DB_URL_PROPERTY = "ORACLE_DB_URL";
+    
+    /**
+     * Property containing the Database user
+     */
+    public static final String ORACLE_DB_USER_PROPERTY = "ORACLE_USER";
+    
+    /**
+     * Property containing the Database user password
+     */
+    public static final String ORACLE_PASSWORD_PROPERTY = "ORACLE_PASSWORD";
+    
+    /**
+     * Default file permissions for the destination files.
+     */
+    public static final String DEFAULT_FILE_PERMISSIONS = "rw-rw-rw-";
     
 }
