@@ -8,12 +8,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Random;
+import java.util.Set;
 import java.util.regex.Pattern;
 
-
+/**
+ * Collection of utility methods generally associated with the file system.
+ * 
+ * @author L. Craig Carpenter
+ */
 public class FileUtils {
     
     /**
@@ -138,6 +145,35 @@ public class FileUtils {
         
     }
     
+    /**
+     * Set the permissions on the target file.
+     * 
+     * @param pathToFile Path to the file to change permissions on.
+     * @param permissions  The unix permission string (i.e. "rw-r--r--")
+     * TODO: Write a regex to test the incoming permission string.
+     * @return True if the permissions were set.  False if any errors were 
+     * encountered.
+     */
+    public static boolean setPosixFilePermissions(
+    		String pathToFile, 
+    		String permissions) {
+    	boolean success = false;
+    	if ((pathToFile != null) && (!pathToFile.isEmpty())) {
+    		if ((permissions != null) && (!permissions.isEmpty())) {
+    			try {
+			    	Set<PosixFilePermission> perms = 
+			    			PosixFilePermissions.fromString(permissions);
+			    	Path p = Paths.get(pathToFile);
+			    	if (Files.exists(p)) {
+				    	Files.setPosixFilePermissions(p, perms);
+				    	success = true;
+			    	}
+    			}
+    			catch (IOException ioe) { }
+		    }
+    	}
+    	return success;
+    }
     
     /**
      * Delete method that will recursively delete the input file.  If the file
