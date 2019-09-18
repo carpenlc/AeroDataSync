@@ -46,12 +46,6 @@ public abstract class DataUpdateService
     DataService dataService;
     
     /**
-     * Container-injected reference to the HashGeneratorService session bean.
-     */
-    @EJB
-    HashGeneratorService hashGeneratorService;
-    
-    /**
      * Default constructor. 
      */
     public DataUpdateService() { 
