@@ -91,24 +91,24 @@ public class AeroDataSync {
         
     }
     
-    @GET
-    @Path("/startUPG")
-    public String startSyncUPG() {
-        
-        try {
-            if (getSyncService() != null) {
-                
-                getSyncService().synchronize(AeroDataType.UPG);
-                
-            }
-            else {
-                return "Unable to look up sync service!";
-            }
-        }
-        catch (UPGDataException ude) {
-            return ude.getMessageText();
-        }
-        return "Done!";
-        
-    }
+//    @GET
+//    @Path("/startUPG")
+//    public String startSyncUPG() {
+//        
+//        try {
+//            if (getSyncService() != null) {
+//                
+//                getSyncService().synchronize(AeroDataType.UPG);
+//                
+//            }
+//            else {
+//                return "Unable to look up sync service!";
+//            }
+//        }
+//        catch (UPGDataException ude) {
+//            return ude.getMessageText();
+//        }
+//        return "Done!";
+//        
+//    }
 }
