@@ -82,23 +82,27 @@ public class UPGDataUpdateTimer {
     dayOfMonth="*", month="*", year="*", info="UPGUpdateTimer")
     private void scheduledTimeout(final Timer t) {
         
-        LOGGER.info("UPG data synchronization service launched at [ "
-                + formatter.format(new Date(System.currentTimeMillis()))
-                + " ].");
-        
-        try {
-            if (getDataSyncService() != null) {
-                getDataSyncService().synchronize(AeroDataType.UPG);
-            }
-            else {
-                LOGGER.error("Application error encountered!  Container " 
-                        + "failed to inject the required EJB references.");
-            }
-        }
-        catch (UPGDataException ude) {
-            // Send an e-mail?
-            ude.printStackTrace();
-        }
+    	
+    	LOGGER.info("Per direction from the Aero office, the UPG "
+    			+ "synchronization process has been disabled due "
+    			+ "due to changes at the data provider (Leidos).");
+//        LOGGER.info("UPG data synchronization service launched at [ "
+//                + formatter.format(new Date(System.currentTimeMillis()))
+//                + " ].");
+//        
+//        try {
+//            if (getDataSyncService() != null) {
+//                getDataSyncService().synchronize(AeroDataType.UPG);
+//            }
+//            else {
+//                LOGGER.error("Application error encountered!  Container " 
+//                        + "failed to inject the required EJB references.");
+//            }
+//        }
+//        catch (UPGDataException ude) {
+//            // Send an e-mail?
+//            ude.printStackTrace();
+//        }
         
     }
     
