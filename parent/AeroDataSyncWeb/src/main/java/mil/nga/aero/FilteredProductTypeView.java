@@ -74,7 +74,12 @@ public class FilteredProductTypeView
         products       = super.loadAllProducts();
         availableTypes = super.loadTypes();
         availableICAOs = super.loadICAOs();
-        totalNumProducts = products.size();
+        if ((products != null) && (products.size() > 0)) {
+        	totalNumProducts = products.size();
+        }
+        else {
+        	totalNumProducts = 0;
+        }
     }
     
     /**
