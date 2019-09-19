@@ -23,14 +23,15 @@
 
 		<jdk.version>1.8</jdk.version>
 		<javaee.version>7.0</javaee.version>
-		<jackson.version>2.9.8</jackson.version>
+		<jackson.version>2.9.9</jackson.version>
+		<jackson-databind.version>2.9.9.3</jackson-databind.version>
 		<logback.version>1.2.2</logback.version>
 		<slf4j.version>1.7.25</slf4j.version>
 		<primefaces.version>6.0</primefaces.version>
 		<commons.codec.version>1.10</commons.codec.version>
 		<commons.logging.version>1.2</commons.logging.version>
-                <httpcore.version>4.4.6</httpcore.version>
-                <httpclient.version>4.5.3</httpclient.version>
+        <httpcore.version>4.4.6</httpcore.version>
+        <httpclient.version>4.5.3</httpclient.version>
 		<maven-ear-plugin.version>2.10</maven-ear-plugin.version>
 		<maven-ejb-plugin.version>2.3</maven-ejb-plugin.version>
 		<maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
@@ -78,7 +79,7 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>${jackson.version}</version>
+			<version>${jackson-databind.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
