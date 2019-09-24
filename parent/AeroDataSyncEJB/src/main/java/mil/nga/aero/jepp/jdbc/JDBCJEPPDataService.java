@@ -305,7 +305,7 @@ public class JDBCJEPPDataService implements AeroDataStoreI {
         long              start    = System.currentTimeMillis();
         String            sql      = "select UUID, ICAO, "
                 + "DATE_LAST_MODIFIED, LINK, FILENAME, SUCCESS_DL, "
-                + "PSUEDONAME, TYPE, LEIDOS_LINK, HASH from "
+                + "PSEUDONAME, TYPE, LEIDOS_LINK, HASH from "
                 + "AEROBROWSER_JEPP where UUID = ? ";
         
         if (datasource != null) {
@@ -521,7 +521,7 @@ public class JDBCJEPPDataService implements AeroDataStoreI {
         String               uuid     = null;
         String               sql      = "select UUID, ICAO, "
                 + "DATE_LAST_MODIFIED, LINK, FILENAME, SUCCESS_DL, "
-                + "PSUEDONAME, TYPE, LEIDOS_LINK, HASH from AEROBROWSER_JEPP "
+                + "PSEUDONAME, TYPE, LEIDOS_LINK, HASH from AEROBROWSER_JEPP "
                 + "order by DATE_LAST_MODIFIED desc";
         
         if (datasource != null) {
@@ -598,7 +598,7 @@ public class JDBCJEPPDataService implements AeroDataStoreI {
         long              start  = System.currentTimeMillis();
         String            sql    = "insert into AEROBROWSER_JEPP ("
                 + "UUID, ICAO, DATE_LAST_MODIFIED, LINK, FILENAME, "
-                + "SUCCESS_DL, PSUEDONAME, TYPE, LEIDOS_LINK, HASH) values "
+                + "SUCCESS_DL, PSEUDONAME, TYPE, LEIDOS_LINK, HASH) values "
                 + "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         if (datasource != null) {
@@ -668,7 +668,7 @@ public class JDBCJEPPDataService implements AeroDataStoreI {
         long              start      = System.currentTimeMillis();
         String            sql        = "update AEROBROWSER_JEPP set "
                 + "ICAO = ?, DATE_LAST_MODIFIED = ?, LINK = ?, "
-                + "FILENAME = ? , SUCCESS_DL = ?, PSUEDONAME = ?, "
+                + "FILENAME = ? , SUCCESS_DL = ?, PSEUDONAME = ?, "
                 + "TYPE = ?, LEIDOS_LINK = ?, HASH = ? where UUID = ?";
         
         if (datasource != null) {
