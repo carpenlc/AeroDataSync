@@ -541,7 +541,7 @@ public class JDBCJEPPDataService implements AeroDataStoreI {
                             .link(rs.getString("LINK"))
                             .filename(rs.getString("FILENAME"))
                             .success(rs.getLong("SUCCESS_DL"))
-                            .psuedoName(rs.getString("PSUEDONAME"))
+                            .psuedoName(rs.getString("PSEUDONAME"))
                             .type(rs.getString("TYPE"))
                             .sourceLink(rs.getString("LEIDOS_LINK"))
                             .hash(rs.getString("HASH"))
