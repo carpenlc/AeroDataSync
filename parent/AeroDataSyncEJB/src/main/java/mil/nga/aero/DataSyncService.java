@@ -282,6 +282,9 @@ public class DataSyncService
                 }
             }
         }
+        else {
+            LOGGER.info("NGA Holdings : No products to add.");
+        }
         metricsBuilder.added(counter);
         return counter;
     }
@@ -360,7 +363,7 @@ public class DataSyncService
             }
         }
         else {
-            LOGGER.info("NGA Holdings : No products to add.");
+            LOGGER.info("NGA Holdings : No products to update.");
         }
         metricsBuilder.updated(counter);
         return counter;
